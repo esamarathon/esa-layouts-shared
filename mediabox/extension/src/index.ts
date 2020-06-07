@@ -20,7 +20,7 @@ class MediaBox {
   prizes: Replicant<Prizes>;
   assetsMediaBoxImages: Replicant<Asset[]>;
 
-  constructor(nodecg: NodeCG) {
+  constructor(nodecg: NodeCG, evt: EventEmitter) {
     this.nodecg = nodecg;
     this.mediaBox = nodecg.Replicant('mediaBox', { schemaPath: buildSchemaPath('mediaBox') });
     this.prizes = nodecg.Replicant('prizes', {
@@ -28,9 +28,6 @@ class MediaBox {
       persistent: false,
     });
     this.assetsMediaBoxImages = nodecg.Replicant('assets:media-box-images');
-
-    // Fake event emitter for now so code below exists and compiles.
-    const evt = new EventEmitter();
 
     // Manages received donations/subscriptions/cheers.
     evt.on('donationFullyProcessed', (data) => {
