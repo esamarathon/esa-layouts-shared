@@ -1,0 +1,19 @@
+{
+  "name": "esa-layouts-mediabox",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/esamarathon/esa-layouts-mediabox.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/esamarathon/esa-layouts-mediabox/issues"
+  },
+  "homepage": "https://github.com/esamarathon/esa-layouts-mediabox#readme"
+}
