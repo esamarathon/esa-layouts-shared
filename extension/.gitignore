@@ -105,3 +105,4 @@ dist
 
 # Built files
 /index.js
+/index.d.ts

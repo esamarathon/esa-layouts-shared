@@ -1,23 +1,33 @@
 import clone from 'clone';
 import { EventEmitter } from 'events';
 import { NodeCG, Replicant } from 'nodecg/types/server';
+import path from 'path';
 import type { MediaBox as MediaBoxRep, Prizes } from 'schemas';
 import type { Asset, MediaBox as MediaBoxType, Tracker } from 'types';
 import { v4 as uuid } from 'uuid';
 
+/**
+ * Calculates the absolute file path to one of our local replicant schemas.
+ * @param schemaName the replicant/schema filename.
+ */
+function buildSchemaPath(schemaName: string) {
+  // "../schemas" is relative to the built file, which is a directory higher than this one!
+	return path.resolve(__dirname, '../schemas', `${encodeURIComponent(schemaName)}.json`);
+}
+
 class MediaBox {
-  nodecg: NodeCG;
+  private nodecg: NodeCG;
   mediaBox: Replicant<MediaBoxRep>;
   prizes: Replicant<Prizes>;
   assetsMediaBoxImages: Replicant<Asset[]>;
 
   constructor(nodecg_: NodeCG) {
     this.nodecg = nodecg_;
-    this.mediaBox = nodecg_.Replicant('mediaBox');
-    this.prizes = nodecg_.Replicant('prizes', { persistent: false });
+    this.mediaBox = nodecg_.Replicant('mediaBox', { schemaPath: buildSchemaPath('mediaBox') });
+    this.prizes = nodecg_.Replicant('prizes', { schemaPath: buildSchemaPath('prizes'), persistent: false });
     this.assetsMediaBoxImages = nodecg_.Replicant('assets:media-box-images');
 
-    // Fake event emitter for now so code below exist and compile.
+    // Fake event emitter for now so code below exists and compiles.
     const evt = new EventEmitter();
 
     // Manages received donations/subscriptions/cheers.
@@ -61,14 +71,14 @@ class MediaBox {
     });
 
     this.update();
-    setInterval(this.update, 1000);
+    setInterval(() => this.update(), 1000);
   }
 
   /**
    * Checks if the supplied type is that of an alert.
    * @param type Type of alert
    */
-  isAlertType(type: MediaBoxType.Types): boolean {
+  private isAlertType(type: MediaBoxType.Types): boolean {
     return ['donation', 'subscription', 'cheer'].includes(type);
   }
 
@@ -77,7 +87,7 @@ class MediaBox {
    * -1 if we cannot find any relevant length.
    * @param media media box object, usually from "current" property.
    */
-  getLength(media: MediaBoxType.ActiveElem): number {
+  private getLength(media: MediaBoxType.ActiveElem): number {
     if (media && this.isAlertType(media.type)) {
       return 10 * 1000; // Alerts have a hardcoded 10 second length for now.
     }
@@ -89,7 +99,7 @@ class MediaBox {
    * Get the index of the next piece of media in the rotation,
    * 0 if for some reason nothing can be located correctly.
    */
-  getNextIndex(): number {
+  private getNextIndex(): number {
     const indexID = this.mediaBox.value.rotationApplicable
       .findIndex((i) => i.id === this.mediaBox.value.current?.id);
     if (indexID >= 0) {
@@ -103,7 +113,7 @@ class MediaBox {
    * Returns if a prize should be shown or not.
    * @param prize Formatted prize object from the tracker.
    */
-  isPrizeApplicable(prize?: Tracker.FormattedPrize): boolean {
+  private isPrizeApplicable(prize?: Tracker.FormattedPrize): boolean {
     return !!(prize && prize.startTime && prize.endTime
       && Date.now() > prize.startTime && Date.now() < prize.endTime);
   }
@@ -111,7 +121,7 @@ class MediaBox {
   /**
    * Returns a random applicable prize if one is available.
    */
-  getRandomPrize(): Tracker.FormattedPrize | undefined {
+  private getRandomPrize(): Tracker.FormattedPrize | undefined {
     const applicablePrizes = this.prizes.value.filter((p) => this.isPrizeApplicable(p));
     return applicablePrizes[Math.floor(Math.random() * applicablePrizes.length)];
   }
@@ -120,7 +130,7 @@ class MediaBox {
    * Handles the cycling of of the current media.
    * @param pause If we should be attempted to "pause" the current media for an alert.
    */
-  cycle(pause = false): void {
+  private cycle(pause = false): void {
     // If the alert queue has anything in it, we need to handle those first.
     if (this.mediaBox.value.alertQueue.length) {
       if (pause) { // Pause current media element.
@@ -166,7 +176,7 @@ class MediaBox {
   /**
    * This runs every second, all of the time.
    */
-  update(): void {
+  private update(): void {
     // Filters rotation for items only applicable/available at this moment.
     const rotationApplicableLengthOld = this.mediaBox.value.rotationApplicable.length;
     this.mediaBox.value.rotationApplicable = this.mediaBox.value.rotation.filter((m) => {
