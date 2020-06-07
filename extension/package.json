@@ -1,0 +1,27 @@
+{
+  "name": "extension",
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": "zoton2",
+  "main": "index.js",
+  "scripts": {
+    "autofix": "eslint --fix --ext .ts src",
+    "build": "tsc -b tsconfig.json",
+    "watch": "tsc -b tsconfig.json -w"
+  },
+  "dependencies": {
+    "clone": "^2.1.2",
+    "uuid": "^8.1.0"
+  },
+  "devDependencies": {
+    "@types/clone": "^0.1.30",
+    "@types/uuid": "^8.0.0",
+    "@typescript-eslint/eslint-plugin": "^3.1.0",
+    "@typescript-eslint/parser": "^3.1.0",
+    "eslint": "^7.1.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-plugin-import": "^2.20.2",
+    "nodecg": "^1.6.1",
+    "typescript": "^3.9.5"
+  }
+}
