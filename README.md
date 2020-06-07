@@ -1,1 +1,1 @@
-# esa-layouts-mediabox
+# esa-layouts-shared

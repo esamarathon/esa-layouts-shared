@@ -12,7 +12,7 @@ import { v4 as uuid } from 'uuid';
  */
 function buildSchemaPath(schemaName: string) {
   // "../schemas" is relative to the built file, which is a directory higher than this one!
-	return path.resolve(__dirname, '../schemas', `${encodeURIComponent(schemaName)}.json`);
+	return path.resolve(__dirname, '../../schemas', `${encodeURIComponent(schemaName)}.json`);
 }
 
 class MediaBox {
