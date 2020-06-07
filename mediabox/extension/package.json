@@ -2,11 +2,12 @@
   "private": true,
   "license": "MIT",
   "author": "zoton2",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "autofix": "eslint --fix --ext .ts src",
-    "build": "tsc -b tsconfig.json",
-    "watch": "tsc -b tsconfig.json -w"
+    "autofix": "node ../../node_modules/eslint/bin/eslint.js --fix --ext .ts src",
+    "build": "node ../../node_modules/typescript/bin/tsc -b tsconfig.json",
+    "watch": "node ../../node_modules/typescript/bin/tsc -b tsconfig.json -w"
   },
   "dependencies": {
     "clone": "^2.1.2",
@@ -14,13 +15,6 @@
   },
   "devDependencies": {
     "@types/clone": "^0.1.30",
-    "@types/uuid": "^8.0.0",
-    "@typescript-eslint/eslint-plugin": "^3.1.0",
-    "@typescript-eslint/parser": "^3.1.0",
-    "eslint": "^7.1.0",
-    "eslint-config-airbnb-base": "^14.1.0",
-    "eslint-plugin-import": "^2.20.2",
-    "nodecg": "^1.6.1",
-    "typescript": "^3.9.5"
+    "@types/uuid": "^8.0.0"
   }
 }

@@ -2,17 +2,16 @@ import clone from 'clone';
 import { EventEmitter } from 'events';
 import { NodeCG, Replicant } from 'nodecg/types/server';
 import path from 'path';
-import type { MediaBox as MediaBoxRep, Prizes } from 'schemas';
-import type { Asset, MediaBox as MediaBoxType, Tracker } from 'types';
 import { v4 as uuid } from 'uuid';
+import type { MediaBox as MediaBoxRep, Prizes } from '../../../schemas';
+import type { Asset, MediaBox as MediaBoxType, Tracker } from '../../../types';
 
 /**
  * Calculates the absolute file path to one of our local replicant schemas.
  * @param schemaName the replicant/schema filename.
  */
 function buildSchemaPath(schemaName: string) {
-  // "../schemas" is relative to the built file, which is a directory higher than this one!
-  return path.resolve(__dirname, '../../schemas', `${encodeURIComponent(schemaName)}.json`);
+  return path.resolve(__dirname, '../../../schemas', `${encodeURIComponent(schemaName)}.json`);
 }
 
 class MediaBox {
@@ -21,14 +20,14 @@ class MediaBox {
   prizes: Replicant<Prizes>;
   assetsMediaBoxImages: Replicant<Asset[]>;
 
-  constructor(nodecg_: NodeCG) {
-    this.nodecg = nodecg_;
-    this.mediaBox = nodecg_.Replicant('mediaBox', { schemaPath: buildSchemaPath('mediaBox') });
-    this.prizes = nodecg_.Replicant('prizes', {
+  constructor(nodecg: NodeCG) {
+    this.nodecg = nodecg;
+    this.mediaBox = nodecg.Replicant('mediaBox', { schemaPath: buildSchemaPath('mediaBox') });
+    this.prizes = nodecg.Replicant('prizes', {
       schemaPath: buildSchemaPath('prizes'),
       persistent: false,
     });
-    this.assetsMediaBoxImages = nodecg_.Replicant('assets:media-box-images');
+    this.assetsMediaBoxImages = nodecg.Replicant('assets:media-box-images');
 
     // Fake event emitter for now so code below exists and compiles.
     const evt = new EventEmitter();

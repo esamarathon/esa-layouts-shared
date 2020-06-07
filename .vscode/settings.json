@@ -1,7 +1,7 @@
 {
   "eslint.workingDirectories": [
     {
-      "directory": "mediabox/extension",
+      "pattern": "*/extension",
       "changeProcessCWD": true
     }
   ]
