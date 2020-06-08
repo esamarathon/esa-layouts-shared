@@ -69,7 +69,7 @@ class RabbitMQ {
   private event: string;
   private listenTopics: ListenTopics;
   private useTestData: boolean;
-  evt = new EventEmitter();
+  evt = new EventEmitter() as RabbitMQTypes.Events;
 
   constructor(
     nodecg: NodeCG,
