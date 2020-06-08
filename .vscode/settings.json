@@ -3,6 +3,10 @@
     {
       "pattern": "*/extension",
       "changeProcessCWD": true
+    },
+    {
+      "pattern": "*/dashboard",
+      "changeProcessCWD": true
     }
   ]
 }
