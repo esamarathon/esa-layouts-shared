@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.browser.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "baseUrl": "."
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.vue",
+    "../../types/vue-shim.d.ts"
+  ]
+}
