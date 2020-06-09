@@ -8,13 +8,5 @@
     "autofix": "node ../../node_modules/eslint/bin/eslint.js --fix --ext .ts src",
     "build": "node ../../node_modules/typescript/bin/tsc -b tsconfig.json",
     "watch": "node ../../node_modules/typescript/bin/tsc -b tsconfig.json -w"
-  },
-  "dependencies": {
-    "clone": "^2.1.2",
-    "uuid": "^8.1.0"
-  },
-  "devDependencies": {
-    "@types/clone": "^0.1.30",
-    "@types/uuid": "^8.0.0"
   }
 }
