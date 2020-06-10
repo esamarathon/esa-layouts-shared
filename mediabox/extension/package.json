@@ -1,7 +1,5 @@
 {
   "private": true,
-  "license": "MIT",
-  "author": "zoton2",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
