@@ -22,7 +22,6 @@
   },
   "devDependencies": {
     "@esamarathon/mq-events": "github:esamarathon/mq-events",
-    "@mdi/font": "^5.3.45",
     "@types/amqp-connection-manager": "^2.0.10",
     "@types/amqplib": "^0.5.13",
     "@types/clone": "^0.1.30",
