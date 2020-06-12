@@ -12,7 +12,8 @@
     "sourceMap": true,
     "types": [
       "webpack-env",
-      "vuetify"
+      "vuetify",
+      "node"
     ],
     "lib": [
       "esnext",
