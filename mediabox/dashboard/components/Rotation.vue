@@ -55,9 +55,9 @@ import { State } from 'vuex-class';
 import { State2Way } from 'vuex-class-state2way';
 import Draggable from 'vuedraggable';
 import clone from 'clone';
-import { Prizes, MediaBox as MediaBoxRep } from '../../../../schemas';
-import { Asset, MediaBox } from '../../../../types';
-import MediaCard from './MediaCard.vue';
+import { Prizes, MediaBox as MediaBoxRep } from 'schemas';
+import { Asset, MediaBox } from 'types';
+import MediaCard from '../../_misc/components/MediaCard.vue';
 import ApplicableIcon from './ApplicableIcon.vue';
 import { getMediaDetails, isPrizeApplicable } from './shared';
 

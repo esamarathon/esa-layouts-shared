@@ -31,9 +31,9 @@
 import { Vue, Component } from 'vue-property-decorator';
 import { State } from 'vuex-class';
 import Draggable from 'vuedraggable';
-import { Asset, MediaBox } from '../../../../types';
+import { Asset, MediaBox } from 'types';
 import { clone } from './shared';
-import MediaCard from './MediaCard.vue';
+import MediaCard from '../../_misc/components/MediaCard.vue';
 
 @Component({
   components: {

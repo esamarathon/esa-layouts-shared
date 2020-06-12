@@ -1,7 +1,0 @@
-{
-  "private": true,
-  "main": "src/index.ts",
-  "scripts": {
-    "autofix": "node ../../node_modules/eslint/bin/eslint.js --fix --ext .ts,.vue src"
-  }
-}
