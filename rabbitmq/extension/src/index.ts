@@ -104,7 +104,7 @@ class RabbitMQ {
           });
         this.chan = conn.createChannel({
           json: false,
-          setup: this.setupChan,
+          setup: (chan: ConfirmChannel) => this.setupChan(chan),
         }).on('error', (err) => {
           nodecg.log.warn('[RabbitMQ] Server channel error');
           nodecg.log.debug('[RabbitMQ] Server channel error:', err);
