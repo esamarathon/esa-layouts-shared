@@ -4,7 +4,7 @@ import type { ChannelWrapper } from 'amqp-connection-manager';
 import amqplib from 'amqplib';
 import type { ConfirmChannel, Message } from 'amqplib';
 import { EventEmitter } from 'events';
-import { NodeCG } from 'nodecg/types/server';
+import type { NodeCG } from 'nodecg/types/server';
 import { RabbitMQ as RabbitMQTypes } from '../../../types';
 
 type ListenTopics = {
