@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "autofix": "node ../../node_modules/eslint/bin/eslint.js --fix --ext .ts src",
+    "build": "node ../../node_modules/typescript/bin/tsc -b tsconfig.json",
+    "watch": "node ../../node_modules/typescript/bin/tsc -b tsconfig.json -w"
+  }
+}

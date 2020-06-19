@@ -30,5 +30,6 @@ module.exports = {
     'lines-between-class-members': 'off',
     'max-len': ['error', { 'code': 100 }],
     'class-methods-use-this': 'off',
+    '@typescript-eslint/ban-ts-comment': 'off',
   },
 };
