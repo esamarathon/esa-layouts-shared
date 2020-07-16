@@ -20,8 +20,10 @@
     "amqplib": "^0.5.6",
     "clone": "^2.1.2",
     "obs-websocket-js": "^4.0.1",
+    "speedcontrol-util": "^0.5.0",
     "string-similarity": "^4.0.1",
     "uuid": "^8.1.0",
+    "ws": "^7.3.1",
     "xkeys": "^0.1.2"
   },
   "devDependencies": {
@@ -29,8 +31,10 @@
     "@types/amqp-connection-manager": "^2.0.10",
     "@types/amqplib": "^0.5.13",
     "@types/clone": "^0.1.30",
+    "@types/needle": "^2.0.4",
     "@types/string-similarity": "^3.0.0",
     "@types/uuid": "^8.0.0",
+    "@types/ws": "^7.2.6",
     "@typescript-eslint/eslint-plugin": "^3.2.0",
     "@typescript-eslint/parser": "^3.2.0",
     "eslint": "^7.2.0",
