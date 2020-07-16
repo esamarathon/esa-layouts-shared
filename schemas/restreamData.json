@@ -26,7 +26,6 @@
     },
     "required": [
       "connected",
-      "uuid",
       "overridden",
       "lowLatency"
     ]
