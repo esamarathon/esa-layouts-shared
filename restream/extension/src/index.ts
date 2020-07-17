@@ -3,7 +3,6 @@
 import { EventEmitter } from 'events';
 import type { NodeCG, Replicant } from 'nodecg/types/server';
 import path from 'path';
-import SpeedcontrolUtil from 'speedcontrol-util';
 import { v4 as uuid } from 'uuid';
 import WebSocket from 'ws';
 import { RestreamData } from '../../../schemas';
@@ -91,8 +90,8 @@ class RestreamInstance extends EventEmitter {
     this.ws.on('message', (data) => {
       const msg: RestreamTypes.IncomingMsg = JSON.parse(data.toString());
       this.nodecg.log.debug(`[Restream, ${this.address}] Received mesage:`, msg);
+      this.channel = msg.channel;
       if (msg.type === 'Update') {
-        this.channel = msg.channel;
         this.emit('update', msg);
       }
     });
@@ -124,7 +123,6 @@ class RestreamInstance extends EventEmitter {
 
 class Restream {
   private nodecg: NodeCG;
-  private sc: SpeedcontrolUtil | undefined;
   private restreamData: Replicant<RestreamData>
   private instances: RestreamInstance[] = [];
 
@@ -139,9 +137,6 @@ class Restream {
 
     if (config.enable) {
       this.nodecg.log.info('[Restream] Setting up');
-      if (sc) {
-        this.sc = new SpeedcontrolUtil(nodecg);
-      }
       const cfgArr = (Array.isArray(config.instances)) ? config.instances : [config.instances];
 
       // Add defaults to the replicant if needed.
@@ -164,34 +159,6 @@ class Restream {
         });
         return restream;
       });
-
-      if (this.sc) {
-        this.nodecg.log.debug('[Restream] Listening to nodecg-speedcontrol');
-        // Start new stream when run changes but not on server (re)start.
-        let init = false;
-        this.sc.runDataActiveRun.on('change', async (newVal, oldVal) => {
-          if (init && newVal?.id !== oldVal?.id && newVal && newVal.teams.length) {
-            this.instances.forEach(async (instance, i) => {
-              const player = newVal.teams[i]?.players[0];
-              if (instance && player && player.social.twitch) {
-                const { lowLatency, channel, uuid: uuid_ } = await instance.startStream(
-                  player.social.twitch,
-                  this.restreamData.value[i]?.lowLatency,
-                );
-                this.updateData(i, {
-                  overridden: false,
-                  lowLatency,
-                  channel,
-                  uuid: uuid_,
-                });
-                // Currently not checking for error msg here, so will always seem successful!
-                this.nodecg.log.info(`[Restream] Successfully started stream ${i} from run change`);
-              }
-            });
-          }
-          init = true;
-        });
-      }
 
       this.nodecg.listenFor('restreamOverride', async (data: {
         index?: number;
@@ -255,24 +222,25 @@ class Restream {
    */
   updateMultipleInstances(channels: (string | undefined)[]): void {
     this.instances.forEach(async (instance, i) => {
-      if (!channels[i]) {
+      const newChan = channels[i];
+      if (!newChan) {
         const { lowLatency, channel, uuid: uuid_ } = await instance.stopStream();
         this.updateData(i, { lowLatency, channel, uuid: uuid_ });
         // Currently not checking for error msg here, so will always seem successful!
         this.nodecg.log.info(`[Restream] Successfully stopped stream ${i + 1}`);
-      } else if (instance.channel && channels[i] !== instance.channel) {
+      } else if (newChan && newChan !== instance.channel) {
         const { lowLatency, channel, uuid: uuid_ } = await instance.startStream(
-          instance.channel,
+          newChan,
           this.restreamData.value[i]?.lowLatency,
         );
         this.updateData(i, {
-          overridden: true,
+          overridden: false,
           lowLatency,
           channel,
           uuid: uuid_,
         });
         // Currently not checking for error msg here, so will always seem successful!
-        this.nodecg.log.info(`[Restream] Successfully overridden stream ${i + 1}`);
+        this.nodecg.log.info(`[Restream] Successfully started stream ${i + 1}`);
       }
     });
   }
