@@ -219,16 +219,16 @@ class OBS extends EventEmitter {
     scene: string,
     item: string,
     area?: {
-      x: number;
-      y: number;
-      width: number;
-      height: number;
+      x?: number;
+      y?: number;
+      width?: number;
+      height?: number;
     },
     crop?: {
-      top: number;
-      bottom: number;
-      left: number;
-      right: number;
+      top?: number;
+      bottom?: number;
+      left?: number;
+      right?: number;
     },
     visible?: boolean,
   ): Promise<void> {
@@ -237,27 +237,26 @@ class OBS extends EventEmitter {
         // OBS not enabled, don't even try to set.
         throw new Error('No connection available');
       }
-      if (area) {
-        await this.conn.send('ResetSceneItem', {
-          'scene-name': scene,
-          item,
-        });
-      }
       // @ts-ignore: Typings say we need to specify more than we actually do.
       await this.conn.send('SetSceneItemProperties', {
         'scene-name': scene,
         item,
         visible: visible ?? true,
-        position: (area) ? {
-          x: area.x,
-          y: area.y,
-        } : {},
-        bounds: (area) ? {
+        position: {
+          x: area?.x ?? 0,
+          y: area?.y ?? 0,
+        },
+        bounds: {
           type: 'OBS_BOUNDS_STRETCH',
-          x: area.width,
-          y: area.height,
-        } : {},
-        crop: crop || {},
+          x: area?.width ?? 1920,
+          y: area?.height ?? 1080,
+        },
+        crop: {
+          top: crop?.top ?? 0,
+          bottom: crop?.bottom ?? 0,
+          left: crop?.left ?? 0,
+          right: crop?.right ?? 0,
+        },
       });
     } catch (err) {
       this.nodecg.log.warn(`[OBS] Cannot configure scene item [${scene}: ${item}]`);
