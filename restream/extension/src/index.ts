@@ -28,19 +28,24 @@ class RestreamInstance extends EventEmitter {
   private nodecg: NodeCG;
   private address: string;
   private key: string;
+  channel: string | undefined;
 
   constructor(nodecg: NodeCG, address: string, key: string) {
     super();
     this.nodecg = nodecg;
     this.address = address;
     this.key = key;
+    this.nodecg.log.debug(`[Restream, ${this.address}] Creating instance`);
     this.connect();
   }
 
   async sendMsg(msg: RestreamTypes.AllSentMsg): Promise<RestreamTypes.ResponseMsg> {
     return new Promise((res) => {
+      this.nodecg.log.debug(`[Restream, ${this.address}] Sending mesage:`, msg);
       if (!this.ws || this.ws.readyState !== 1) {
         // throw new Error('WebSocket not connected');
+        this.nodecg.log.warn(`[Restream, ${this.address}] `
+          + 'Cannot send mesage: WebSocket not connected');
         return;
       }
       const msgID = uuid();
@@ -48,6 +53,8 @@ class RestreamInstance extends EventEmitter {
       const msgEvt = (data: WebSocket.Data): void => {
         const resp: RestreamTypes.IncomingMsg = JSON.parse(data.toString());
         if (this.ws && resp.type === 'Response' && resp.msgID === msgID) {
+          this.nodecg.log.debug(`[Restream, ${this.address}] `
+            + 'Received successful confirmation message');
           this.ws.removeListener('message', msgEvt);
           res(resp);
         }
@@ -59,29 +66,33 @@ class RestreamInstance extends EventEmitter {
   }
 
   connect(): void {
+    this.nodecg.log.info(`[Restream, ${this.address}] Connecting`);
     this.ws = new WebSocket(`ws://${this.address}/?key=${this.key}`);
 
     this.ws.once('open', () => {
       this.emit('connected');
-      // log open
+      this.nodecg.log.info(`[Restream, ${this.address}] Connected`);
     });
 
     this.ws.on('error', (err) => {
-      // log error
+      this.nodecg.log.warn(`[Restream, ${this.address}] Connection error`);
+      this.nodecg.log.debug(`[Restream, ${this.address}] Connection error:`, err);
     });
 
     this.ws.once('close', () => {
       if (this.ws) {
         this.ws.removeAllListeners();
       }
-      // log close
       this.emit('disconnected');
       setTimeout(() => this.connect(), 5 * 1000);
+      this.nodecg.log.warn(`[Restream, ${this.address}] Connection lost, retrying in 5 seconds`);
     });
 
     this.ws.on('message', (data) => {
       const msg: RestreamTypes.IncomingMsg = JSON.parse(data.toString());
+      this.nodecg.log.debug(`[Restream, ${this.address}] Received mesage:`, msg);
       if (msg.type === 'Update') {
+        this.channel = msg.channel;
         this.emit('update', msg);
       }
     });
@@ -119,9 +130,6 @@ class Restream {
 
   constructor(nodecg: NodeCG, sc: boolean, config: RestreamTypes.Config) {
     this.nodecg = nodecg;
-    if (sc) {
-      this.sc = new SpeedcontrolUtil(nodecg);
-    }
     this.restreamData = nodecg.Replicant('restreamData', {
       schemaPath: buildSchemaPath('restreamData'),
     });
@@ -130,6 +138,10 @@ class Restream {
     }
 
     if (config.enable) {
+      this.nodecg.log.info('[Restream] Setting up');
+      if (sc) {
+        this.sc = new SpeedcontrolUtil(nodecg);
+      }
       const cfgArr = (Array.isArray(config.instances)) ? config.instances : [config.instances];
 
       // Add defaults to the replicant if needed.
@@ -154,6 +166,7 @@ class Restream {
       });
 
       if (this.sc) {
+        this.nodecg.log.debug('[Restream] Listening to nodecg-speedcontrol');
         // Start new stream when run changes but not on server (re)start.
         let init = false;
         this.sc.runDataActiveRun.on('change', async (newVal, oldVal) => {
@@ -171,6 +184,8 @@ class Restream {
                   channel,
                   uuid: uuid_,
                 });
+                // Currently not checking for error msg here, so will always seem successful!
+                this.nodecg.log.info(`[Restream] Successfully started stream ${i} from run change`);
               }
             });
           }
@@ -196,6 +211,9 @@ class Restream {
             channel: channel_,
             uuid: uuid_,
           });
+          // Currently not checking for error msg here, so will always seem successful!
+          this.nodecg.log.info('[Restream] Successfully overridden stream '
+            + `${(data.index || 0) + 1}`);
         }
         if (cb && !cb.handled) {
           cb();
@@ -207,6 +225,8 @@ class Restream {
         if (instance) {
           const { lowLatency, channel, uuid: uuid_ } = await instance.restartStream();
           this.updateData(data.index || 0, { lowLatency, channel, uuid: uuid_ });
+          // Currently not checking for error msg here, so will always seem successful!
+          this.nodecg.log.info(`[Restream] Successfully restarted stream ${(data.index || 0) + 1}`);
         }
         if (cb && !cb.handled) {
           cb();
@@ -218,6 +238,8 @@ class Restream {
         if (instance) {
           const { lowLatency, channel, uuid: uuid_ } = await instance.stopStream();
           this.updateData(data.index || 0, { lowLatency, channel, uuid: uuid_ });
+          // Currently not checking for error msg here, so will always seem successful!
+          this.nodecg.log.info(`[Restream] Successfully stopped stream ${(data.index || 0) + 1}`);
         }
         if (cb && !cb.handled) {
           cb();
@@ -226,12 +248,42 @@ class Restream {
     }
   }
 
-  updateData(i: number, opts: {
+  /**
+   * Takes a list of channels and will set them on that instance index if different,
+   * or stop if needed.
+   * @param channels List of channels.
+   */
+  updateMultipleInstances(channels: (string | undefined)[]): void {
+    this.instances.forEach(async (instance, i) => {
+      if (!channels[i]) {
+        const { lowLatency, channel, uuid: uuid_ } = await instance.stopStream();
+        this.updateData(i, { lowLatency, channel, uuid: uuid_ });
+        // Currently not checking for error msg here, so will always seem successful!
+        this.nodecg.log.info(`[Restream] Successfully stopped stream ${i + 1}`);
+      } else if (instance.channel && channels[i] !== instance.channel) {
+        const { lowLatency, channel, uuid: uuid_ } = await instance.startStream(
+          instance.channel,
+          this.restreamData.value[i]?.lowLatency,
+        );
+        this.updateData(i, {
+          overridden: true,
+          lowLatency,
+          channel,
+          uuid: uuid_,
+        });
+        // Currently not checking for error msg here, so will always seem successful!
+        this.nodecg.log.info(`[Restream] Successfully overridden stream ${i + 1}`);
+      }
+    });
+  }
+
+  private updateData(i: number, opts: {
     channel?: string,
     uuid?: string,
     overridden?: boolean,
     lowLatency?: boolean,
   }): void {
+    this.nodecg.log.debug(`[Restream] Updating restreamData[${i}]:`, opts);
     this.restreamData.value[i] = {
       connected: this.restreamData.value[i].connected,
       overridden: opts.overridden ?? this.restreamData.value[i].overridden,
