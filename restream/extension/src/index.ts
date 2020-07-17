@@ -20,6 +20,7 @@ interface RestreamInstance {
   on(event: 'connected', listener: () => void): this;
   on(event: 'disconnected', listener: () => void): this;
   on(event: 'update', listener: (data: RestreamTypes.UpdateMsg) => void): this;
+  on(event: 'channelChange', listener: (channel?: string) => void): this;
 }
 
 class RestreamInstance extends EventEmitter {
@@ -91,6 +92,7 @@ class RestreamInstance extends EventEmitter {
       const msg: RestreamTypes.IncomingMsg = JSON.parse(data.toString());
       this.nodecg.log.debug(`[Restream, ${this.address}] Received mesage:`, msg);
       this.channel = msg.channel;
+      this.emit('channelChange', msg.channel);
       if (msg.type === 'Update') {
         this.emit('update', msg);
       }
@@ -123,8 +125,8 @@ class RestreamInstance extends EventEmitter {
 
 class Restream {
   private nodecg: NodeCG;
-  private restreamData: Replicant<RestreamData>
-  private instances: RestreamInstance[] = [];
+  instances: RestreamInstance[] = [];
+  restreamData: Replicant<RestreamData>;
 
   constructor(nodecg: NodeCG, sc: boolean, config: RestreamTypes.Config) {
     this.nodecg = nodecg;
