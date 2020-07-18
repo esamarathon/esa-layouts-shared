@@ -5,9 +5,12 @@
     </v-toolbar-title>
     <media-card
       v-if="!images.length"
-      :style="{ 'font-style': 'italic' }"
+      :style="{
+        'font-style': 'italic',
+        'white-space': 'unset',
+      }"
     >
-      Add images in the "Assets" tab.
+      Add images under "Assets" > "BUNDLE_NAME" > "Media Box Images".
     </media-card>
     <draggable
       v-else
