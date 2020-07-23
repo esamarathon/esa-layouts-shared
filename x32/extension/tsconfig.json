@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.extension.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "baseUrl": "."
+  },
+  "include": [
+    "src/**/*.ts",
+    "../../types/osc.d.ts"
+  ]
+}
