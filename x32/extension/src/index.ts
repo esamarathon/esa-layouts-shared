@@ -6,17 +6,19 @@ import type { X32 as X32Types } from '../../../types';
 
 class X32 {
   private nodecg: NodeCG;
-  private conn: osc.UDPPort | undefined;
+  private config: X32Types.Config;
+  conn: osc.UDPPort | undefined;
   private port = 10023;
   private subscriptions: string[] = [];
-  private faders: { [k: string]: number } = {};
-  private fadersExpected: { [k: string]: {
+  faders: { [k: string]: number } = {};
+  fadersExpected: { [k: string]: {
     value: number, increase: boolean, seenOnce: boolean,
   } } = {};
   private fadersInterval: { [k: string]: NodeJS.Timeout } = {};
 
   constructor(nodecg: NodeCG, config: X32Types.Config, subscriptions: string[]) {
     this.nodecg = nodecg;
+    this.config = config;
     this.subscriptions = subscriptions;
 
     if (config.enable) {
@@ -117,6 +119,16 @@ class X32 {
    * @param length Milliseconds to spend doing fade.
    */
   fade(name: string, startValue: number, endValue: number, length: number): void {
+    if (!this.config.enable) {
+      throw new Error('No connection available');
+    }
+
+    // Will stop doing a fade if we receive another one while the old one is running, for safety.
+    if (this.fadersExpected[name]) {
+      clearInterval(this.fadersInterval[name]);
+      delete this.fadersExpected[name];
+    }
+
     this.nodecg.log.debug(`[X32] Attempting to fade ${name} `
       + `(${startValue} => ${endValue}) for ${length}ms`);
     let currentValue = startValue;
