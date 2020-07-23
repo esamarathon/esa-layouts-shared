@@ -8,7 +8,6 @@ class X32 {
   private nodecg: NodeCG;
   private config: X32Types.Config;
   conn: osc.UDPPort | undefined;
-  private port = 10023;
   private subscriptions: string[] = [];
   faders: { [k: string]: number } = {};
   fadersExpected: { [k: string]: {
@@ -26,9 +25,9 @@ class X32 {
 
       this.conn = new osc.UDPPort({
         localAddress: '0.0.0.0',
-        localPort: 52361,
+        localPort: config.localPort,
         remoteAddress: config.ip,
-        remotePort: this.port,
+        remotePort: 10023,
         metadata: true,
       });
 
@@ -104,7 +103,7 @@ class X32 {
               });
             }
           }
-        }, 9 * 1000);
+        }, 5 * 1000);
       });
 
       this.conn.open();
