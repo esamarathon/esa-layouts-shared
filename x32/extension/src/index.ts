@@ -8,17 +8,15 @@ class X32 {
   private nodecg: NodeCG;
   private config: X32Types.Config;
   conn: osc.UDPPort | undefined;
-  private subscriptions: string[] = [];
   faders: { [k: string]: number } = {};
   fadersExpected: { [k: string]: {
     value: number, increase: boolean, seenOnce: boolean,
   } } = {};
   private fadersInterval: { [k: string]: NodeJS.Timeout } = {};
 
-  constructor(nodecg: NodeCG, config: X32Types.Config, subscriptions: string[]) {
+  constructor(nodecg: NodeCG, config: X32Types.Config) {
     this.nodecg = nodecg;
     this.config = config;
-    this.subscriptions = subscriptions;
 
     if (config.enable) {
       nodecg.log.info('[X32] Setting up connection');
@@ -84,26 +82,14 @@ class X32 {
         nodecg.log.info('[X32] Connection ready');
 
         // Subscribe/renew to updates (must be done every <10 seconds).
-        // this.conn.send({ address: '/xremote', args: [] });
-        for (const topic of this.subscriptions) {
-          if (this.conn) {
-            this.conn.send({
-              address: '/subscribe',
-              args: [{ type: 's', value: topic }, { type: 'i', value: 0 }],
-            });
-          }
+        if (this.conn) {
+          this.conn.send({ address: '/xremote', args: [] });
         }
         setInterval(() => {
-          // this.conn.send({ address: '/xremote', args: [] });
-          for (const topic of this.subscriptions) {
-            if (this.conn) {
-              this.conn.send({
-                address: '/renew',
-                args: [{ type: 's', value: topic }],
-              });
-            }
+          if (this.conn) {
+            this.conn.send({ address: '/xremote', args: [] });
           }
-        }, 5 * 1000);
+        }, 8 * 1000);
       });
 
       this.conn.open();
@@ -135,6 +121,12 @@ class X32 {
     const stepCount = length / 100;
     const stepSize = (endValue - startValue) / stepCount;
     this.fadersExpected[name] = { value: endValue, increase, seenOnce: false };
+    if (this.conn) {
+      this.conn.send({
+        address: '/subscribe',
+        args: [{ type: 's', value: name }, { type: 'i', value: 0 }],
+      });
+    }
     this.fadersInterval[name] = setInterval(() => {
       if ((increase && currentValue >= endValue) || (!increase && currentValue <= endValue)) {
         clearInterval(this.fadersInterval[name]);
