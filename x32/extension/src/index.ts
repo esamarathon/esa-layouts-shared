@@ -97,6 +97,26 @@ class X32 {
   }
 
   /**
+   * Just set a specific fader to the supplied value.
+   * @param name Full name of fader (example: /dca/1/fader).
+   * @param startValue Value to set (0.0 - 1.0).
+   */
+  setFader(name: string, value: number): void {
+    if (!this.config.enable) {
+      throw new Error('No connection available');
+    }
+
+    this.nodecg.log.debug(`[X32] Attempting to set fader on ${name} to ${value}`);
+    if (this.conn) {
+      this.conn.send({
+        address: '/subscribe',
+        args: [{ type: 's', value: name }, { type: 'i', value: 0 }],
+      });
+      this.conn.send({ address: name, args: [{ type: 'f', value }] });
+    }
+  }
+
+  /**
    * Fades up/down the supplied fader using the specified settings.
    * @param name Full name of fader (example: /dca/1/fader).
    * @param startValue Value to start at (0.0 - 1.0).
