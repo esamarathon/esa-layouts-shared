@@ -1,3 +1,4 @@
+import clone from 'clone';
 import { EventEmitter } from 'events';
 import type { NodeCG } from 'nodecg/types/server';
 import ObsWebsocketJs from 'obs-websocket-js';
@@ -75,29 +76,38 @@ class OBS extends EventEmitter {
         password: this.config.password,
       });
       this.connected = true;
-      this.emit('connectionStatusChanged', this.connected);
       await this.conn.send('SetHeartbeat', { enable: true });
       const scenes = await this.conn.send('GetSceneList');
 
       // Get current scene on connection.
       const lastScene = this.currentScene;
-      if (this.currentScene !== scenes['current-scene']) {
+      if (lastScene !== scenes['current-scene']) {
         this.currentScene = scenes['current-scene'];
-        this.emit('currentSceneChanged', this.currentScene, lastScene);
       }
 
       // Get scene list on connection.
-      const list = scenes.scenes.map((s) => s.name);
-      if (JSON.stringify(list) !== JSON.stringify(this.sceneList)) {
-        this.sceneList = list;
-        this.emit('sceneListChanged', this.sceneList);
+      const oldList = clone(this.sceneList);
+      const newList = scenes.scenes.map((s) => s.name);
+      if (JSON.stringify(newList) !== JSON.stringify(oldList)) {
+        this.sceneList = newList;
       }
 
       // Get streaming status on connection.
       const streamingStatus = await this.conn.send('GetStreamingStatus');
       const lastStatus = this.streaming;
-      if (streamingStatus.streaming !== this.streaming) {
+      if (streamingStatus.streaming !== lastStatus) {
         this.streaming = streamingStatus.streaming;
+      }
+
+      // Emit changes after everything start up related has finished.
+      this.emit('connectionStatusChanged', this.connected);
+      if (lastScene !== scenes['current-scene']) {
+        this.emit('currentSceneChanged', this.currentScene, lastScene);
+      }
+      if (JSON.stringify(newList) !== JSON.stringify(oldList)) {
+        this.emit('sceneListChanged', this.sceneList);
+      }
+      if (streamingStatus.streaming !== lastStatus) {
         this.emit('streamingStatusChanged', this.streaming, lastStatus);
       }
 
