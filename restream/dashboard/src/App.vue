@@ -72,7 +72,7 @@ Vue.use(Vuetify);
 export default class extends Vue {
   @Prop({ type: String, default: 'Stream 1' }) name!: string;
   @Prop({ type: Number, default: 0 }) index!: number;
-  @Prop(Object) restreamData!: RestreamData;
+  @Prop(Array) restreamData!: RestreamData;
   channelEntry = '';
   lowLatency = true;
   applying = false;
