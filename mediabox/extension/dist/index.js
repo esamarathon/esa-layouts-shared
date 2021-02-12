@@ -79,7 +79,7 @@ var MediaBox = /** @class */ (function () {
     MediaBox.prototype.getLength = function (media) {
         var _a;
         if (media && this.isAlertType(media.type)) {
-            return 10 * 1000; // Alerts have a hardcoded 10 second length for now.
+            return 15 * 1000; // Alerts have a hardcoded 15 second length for now.
         }
         var length = (_a = this.mediaBox.value.rotationApplicable.find(function (i) { return i.id === (media === null || media === void 0 ? void 0 : media.id); })) === null || _a === void 0 ? void 0 : _a.seconds;
         return length ? length * 1000 : -1;
