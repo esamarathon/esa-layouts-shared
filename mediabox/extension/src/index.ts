@@ -88,7 +88,7 @@ class MediaBox {
    */
   private getLength(media: MediaBoxType.ActiveElem): number {
     if (media && this.isAlertType(media.type)) {
-      return 10 * 1000; // Alerts have a hardcoded 10 second length for now.
+      return 15 * 1000; // Alerts have a hardcoded 15 second length for now.
     }
     const length = this.mediaBox.value.rotationApplicable.find((i) => i.id === media?.id)?.seconds;
     return length ? length * 1000 : -1;
