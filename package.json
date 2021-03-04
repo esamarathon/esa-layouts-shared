@@ -24,7 +24,7 @@
     "string-similarity": "^4.0.1",
     "uuid": "^8.1.0",
     "ws": "^7.3.1",
-    "xkeys": "^0.1.2"
+    "xkeys": "^1.1.1"
   },
   "devDependencies": {
     "@esamarathon/mq-events": "github:esamarathon/mq-events",
