@@ -3,7 +3,6 @@ import { EventEmitter } from 'events';
 import type { NodeCG } from 'nodecg/types/server';
 import ObsWebsocketJs from 'obs-websocket-js';
 import { findBestMatch } from 'string-similarity';
-import { OBS as OBSTypes } from '../../../types';
 
 interface OBS {
   on(event: 'streamingStatusChanged', listener: (streaming: boolean, old?: boolean) => void): this;
@@ -12,16 +11,22 @@ interface OBS {
   on(event: 'sceneListChanged', listener: (list: string[]) => void): this;
 }
 
+interface Config {
+  enable: boolean;
+  address: string;
+  password: string;
+}
+
 class OBS extends EventEmitter {
   private nodecg: NodeCG;
-  private config: OBSTypes.Config;
+  private config: Config;
   conn = new ObsWebsocketJs();
   currentScene: string | undefined;
   sceneList: string [] = [];
   connected = false;
   streaming: boolean | undefined;
 
-  constructor(nodecg: NodeCG, config: OBSTypes.Config) {
+  constructor(nodecg: NodeCG, config: Config) {
     super();
     this.nodecg = nodecg;
     this.config = config;
@@ -61,6 +66,7 @@ class OBS extends EventEmitter {
         this.emit('streamingStatusChanged', this.streaming, !this.streaming);
       });
 
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: Pretty sure this emits an error.
       this.conn.on('error', (err) => {
         nodecg.log.warn('[OBS] Connection error');
@@ -182,7 +188,8 @@ class OBS extends EventEmitter {
       throw new Error('No connection available');
     }
     try {
-      return await this.conn.send('GetSourceSettings', { sourceName });
+      const resp = await this.conn.send('GetSourceSettings', { sourceName });
+      return resp;
     } catch (err) {
       this.nodecg.log.warn(`[OBS] Cannot get source settings [${sourceName}]`);
       this.nodecg.log.debug(`[OBS] Cannot get source settings [${sourceName}]: `
@@ -247,10 +254,11 @@ class OBS extends EventEmitter {
         // OBS not enabled, don't even try to set.
         throw new Error('No connection available');
       }
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: Typings say we need to specify more than we actually do.
       await this.conn.send('SetSceneItemProperties', {
         'scene-name': scene,
-        item,
+        item: { name: item },
         visible: visible ?? true,
         position: {
           x: area?.x ?? 0,
