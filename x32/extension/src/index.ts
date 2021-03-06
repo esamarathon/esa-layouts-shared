@@ -1,12 +1,15 @@
-/* eslint-disable no-restricted-syntax */
-
 import type { NodeCG } from 'nodecg/types/server';
 import osc from 'osc';
-import type { X32 as X32Types } from '../../../types';
+
+interface Config {
+  enable: boolean;
+  ip: string;
+  localPort: number;
+}
 
 class X32 {
   private nodecg: NodeCG;
-  private config: X32Types.Config;
+  private config: Config;
   conn: osc.UDPPort | undefined;
   faders: { [k: string]: number } = {};
   fadersExpected: { [k: string]: {
@@ -14,7 +17,7 @@ class X32 {
   } } = {};
   private fadersInterval: { [k: string]: NodeJS.Timeout } = {};
 
-  constructor(nodecg: NodeCG, config: X32Types.Config) {
+  constructor(nodecg: NodeCG, config: Config) {
     this.nodecg = nodecg;
     this.config = config;
 
