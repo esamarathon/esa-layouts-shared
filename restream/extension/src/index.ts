@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable max-classes-per-file */
 
 import { EventEmitter } from 'events';
@@ -6,7 +7,7 @@ import path from 'path';
 import { v4 as uuid } from 'uuid';
 import WebSocket from 'ws';
 import { RestreamData } from '../../../schemas';
-import { Restream as RestreamTypes } from '../../../types';
+import { Restream as RestreamTypes } from './Restream';
 
 /**
  * Calculates the absolute file path to one of our local replicant schemas.

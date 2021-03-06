@@ -6,5 +6,13 @@
     "autofix": "node ../../node_modules/eslint/bin/eslint.js --fix --ext .ts src",
     "build": "node ../../node_modules/typescript/bin/tsc -b tsconfig.json",
     "watch": "node ../../node_modules/typescript/bin/tsc -b tsconfig.json -w"
+  },
+  "dependencies": {
+    "uuid": "^8.3.2",
+    "ws": "^7.4.3"
+  },
+  "devDependencies": {
+    "@types/uuid": "^8.3.0",
+    "@types/ws": "^7.4.0"
   }
 }
