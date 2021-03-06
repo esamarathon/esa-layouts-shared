@@ -1,7 +1,6 @@
 import { EventEmitter } from 'events';
 import type { NodeCG } from 'nodecg/types/server';
-import XKeysLib from 'xkeys';
-import type { XKeysLib as XKeysLibTypes } from '../../../types';
+import { XKeys } from 'xkeys';
 
 interface XKeysClass {
   on(event: 'down', listener: (keyIndex: string) => void): this;
@@ -10,12 +9,16 @@ interface XKeysClass {
   on(event: 'shuttle', listener: (position: number) => void): this;
 }
 
+interface Config {
+  enable: boolean;
+}
+
 class XKeysClass extends EventEmitter {
   private nodecg: NodeCG;
-  private config: XKeysLibTypes.Config;
-  panel: XKeysLib | undefined;
+  private config: Config;
+  panel: XKeys | undefined;
 
-  constructor(nodecg: NodeCG, config: XKeysLibTypes.Config) {
+  constructor(nodecg: NodeCG, config: Config) {
     super();
     this.nodecg = nodecg;
     this.config = config;
@@ -28,7 +31,7 @@ class XKeysClass extends EventEmitter {
   connect(): void {
     try {
       this.nodecg.log.info('[XKeys] Setting up panel');
-      this.panel = new XKeysLib();
+      this.panel = new XKeys();
       this.nodecg.log.info('[XKeys] Panel successfully found');
       this.panel.on('error', (err) => {
         this.nodecg.log.debug('[XKeys] Panel error:', err);
@@ -67,7 +70,7 @@ class XKeysClass extends EventEmitter {
     }
   }
 
-  setBacklight(keyIndex: number | string, on?: boolean,
+  setBacklight(keyIndex: number | string, on = true,
     redLight?: boolean, flashing?: boolean): void {
     if (!this.config.enable) {
       // XKeys not enabled, don't even try to set.

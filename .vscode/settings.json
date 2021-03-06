@@ -1,12 +1,10 @@
 {
   "eslint.workingDirectories": [
     {
-      "pattern": "*/extension",
-      "changeProcessCWD": true
+      "pattern": "*/extension"
     },
     {
-      "pattern": "*/dashboard",
-      "changeProcessCWD": true
+      "pattern": "*/dashboard"
     }
   ]
 }
