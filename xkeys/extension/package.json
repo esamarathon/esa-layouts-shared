@@ -3,22 +3,11 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "autofix": "eslint --fix --ext .ts src",
-    "build": "tsc -b tsconfig.json",
-    "watch": "tsc -b tsconfig.json -w"
+    "autofix": "node ../../node_modules/eslint/bin/eslint.js --fix --ext .ts src",
+    "build": "node ../../node_modules/typescript/bin/tsc -b tsconfig.json",
+    "watch": "node ../../node_modules/typescript/bin/tsc -b tsconfig.json -w"
   },
   "dependencies": {
     "xkeys": "^1.1.1"
-  },
-  "devDependencies": {
-    "@types/node": "^14.14.31",
-    "@typescript-eslint/eslint-plugin": "^4.16.1",
-    "@typescript-eslint/parser": "^4.16.1",
-    "eslint": "^7.21.0",
-    "eslint-config-airbnb-typescript": "^12.3.1",
-    "eslint-import-resolver-typescript": "^2.4.0",
-    "eslint-plugin-import": "^2.22.1",
-    "nodecg": "^1.7.4",
-    "typescript": "^4.2.3"
   }
 }
