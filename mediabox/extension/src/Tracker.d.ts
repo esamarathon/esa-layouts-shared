@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable import/prefer-default-export */
+
 // The object from the tracker API.
 interface BidFields {
   state: string;

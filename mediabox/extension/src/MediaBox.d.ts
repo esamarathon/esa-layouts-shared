@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable import/prefer-default-export */
+
 export namespace MediaBox {
   type Types = 'image' | 'prize' | 'prize_generic' | 'donation' | 'subscription' | 'cheer';
 
@@ -21,19 +24,19 @@ export namespace MediaBox {
     type: 'donation' | 'subscription' | 'cheer';
     id: string;
     data:
-      | {
-          name: string;
-          amount: number;
-          comment?: string;
-        }
-      | {
-          systemMsg: string;
-          message?: string;
-        }
-      | {
-          name: string;
-          amount: number;
-          message: string;
-        };
+    | {
+      name: string;
+      amount: number;
+      comment?: string;
+    }
+    | {
+      systemMsg: string;
+      message?: string;
+    }
+    | {
+      name: string;
+      amount: number;
+      message: string;
+    };
   }
 }
