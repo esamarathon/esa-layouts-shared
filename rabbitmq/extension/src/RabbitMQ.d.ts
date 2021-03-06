@@ -1,4 +1,8 @@
-import * as types from '@esamarathon/mq-events/types';
+/* eslint-disable max-len */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable import/prefer-default-export */
+
+import type * as types from '@esamarathon/mq-events/types';
 import { EventEmitter } from 'events';
 
 export namespace RabbitMQ {

@@ -1,11 +1,11 @@
-import { OmnibarModeration, Tracker } from '@esamarathon/mq-events/types';
-import amqpConnectionManager from 'amqp-connection-manager';
+import type { OmnibarModeration, Tracker } from '@esamarathon/mq-events/types';
 import type { ChannelWrapper } from 'amqp-connection-manager';
-import amqplib from 'amqplib';
+import amqpConnectionManager from 'amqp-connection-manager';
 import type { ConfirmChannel, Message } from 'amqplib';
+import amqplib from 'amqplib';
 import { EventEmitter } from 'events';
 import type { NodeCG } from 'nodecg/types/server';
-import { RabbitMQ as RabbitMQTypes } from '../../../types';
+import { RabbitMQ as RabbitMQTypes } from './RabbitMQ';
 
 type ListenTopics = {
   name: string;
