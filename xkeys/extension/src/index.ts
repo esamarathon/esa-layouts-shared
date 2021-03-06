@@ -70,8 +70,7 @@ class XKeysClass extends EventEmitter {
     }
   }
 
-  setBacklight(keyIndex: number | string, on = true,
-    redLight?: boolean, flashing?: boolean): void {
+  setBacklight(keyIndex: number | string, on = true, redLight?: boolean, flashing?: boolean): void {
     if (!this.config.enable) {
       // XKeys not enabled, don't even try to set.
       return;
