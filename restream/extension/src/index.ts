@@ -6,8 +6,8 @@ import type { NodeCG, Replicant } from 'nodecg/types/server';
 import path from 'path';
 import { v4 as uuid } from 'uuid';
 import WebSocket from 'ws';
-import { RestreamData } from '../../../schemas';
-import { Restream as RestreamTypes } from './Restream';
+import { Restream as RestreamTypes } from '../../../types';
+import { RestreamData } from '../../../types/schemas';
 
 /**
  * Calculates the absolute file path to one of our local replicant schemas.
@@ -22,6 +22,15 @@ interface RestreamInstance {
   on(event: 'disconnected', listener: () => void): this;
   on(event: 'update', listener: (data: RestreamTypes.UpdateMsg) => void): this;
   on(event: 'channelChange', listener: (channel?: string) => void): this;
+}
+
+interface ConfigItem {
+  address: string;
+  key: string;
+}
+interface Config {
+  enable: boolean;
+  instances: ConfigItem | ConfigItem[];
 }
 
 class RestreamInstance extends EventEmitter {
@@ -129,7 +138,7 @@ class Restream {
   instances: RestreamInstance[] = [];
   restreamData: Replicant<RestreamData>;
 
-  constructor(nodecg: NodeCG, sc: boolean, config: RestreamTypes.Config) {
+  constructor(nodecg: NodeCG, sc: boolean, config: Config) {
     this.nodecg = nodecg;
     this.restreamData = nodecg.Replicant('restreamData', {
       schemaPath: buildSchemaPath('restreamData'),

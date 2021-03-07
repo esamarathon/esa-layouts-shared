@@ -1,20 +1,7 @@
-/* eslint-disable max-len */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable import/prefer-default-export */
-
 import type * as types from '@esamarathon/mq-events/types';
 import { EventEmitter } from 'events';
 
 export namespace RabbitMQ {
-  interface Config {
-    enable: boolean;
-    protocol: string;
-    hostname: string;
-    username: string;
-    password: string;
-    vhost: string;
-  }
-
   interface Options {
     connectionOptions: {
       credentials: {

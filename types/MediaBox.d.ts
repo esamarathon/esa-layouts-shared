@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable import/prefer-default-export */
-
 export namespace MediaBox {
   type Types = 'image' | 'prize' | 'prize_generic' | 'donation' | 'subscription' | 'cheer';
 

@@ -5,13 +5,22 @@ import type { ConfirmChannel, Message } from 'amqplib';
 import amqplib from 'amqplib';
 import { EventEmitter } from 'events';
 import type { NodeCG } from 'nodecg/types/server';
-import { RabbitMQ as RabbitMQTypes } from './RabbitMQ';
+import { RabbitMQ as RabbitMQTypes } from '../../../types';
 
 type ListenTopics = {
   name: string;
   exchange: string;
   key: string;
 }[];
+
+interface Config {
+  enable: boolean;
+  protocol: string;
+  hostname: string;
+  username: string;
+  password: string;
+  vhost: string;
+}
 
 function getTimeInfo(): { unix: number; iso: string } {
   const nowDate: Date = new Date();
@@ -63,7 +72,7 @@ const testData: {
 
 class RabbitMQ {
   private nodecg: NodeCG;
-  private config: RabbitMQTypes.Config;
+  private config: Config;
   private chan: ChannelWrapper | undefined;
   private exchange: string;
   private event: string;
@@ -75,7 +84,7 @@ class RabbitMQ {
     nodecg: NodeCG,
     useTestData: boolean,
     opts: {
-      config: RabbitMQTypes.Config,
+      config: Config,
       exchange: string,
       event: string,
       listenTopics: ListenTopics,

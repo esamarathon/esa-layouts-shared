@@ -5,10 +5,8 @@ import { EventEmitter } from 'events';
 import type { NodeCG, Replicant } from 'nodecg/types/server';
 import path from 'path';
 import { v4 as uuid } from 'uuid';
-import type { MediaBox as MediaBoxRep, Prizes } from '../../../schemas';
-import type { Asset } from './Asset';
-import type { MediaBox as MediaBoxType } from './MediaBox';
-import type { Tracker } from './Tracker';
+import type { Asset, MediaBox as MediaBoxType, Tracker } from '../../../types';
+import type { MediaBox as MediaBoxRep, Prizes } from '../../../types/schemas';
 
 /**
  * Calculates the absolute file path to one of our local replicant schemas.

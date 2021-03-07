@@ -1,16 +1,4 @@
-/* eslint-disable import/prefer-default-export */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 export namespace Restream {
-  interface ConfigItem {
-    address: string;
-    key: string;
-  }
-  interface Config {
-    enable: boolean;
-    instances: ConfigItem | ConfigItem[];
-  }
-
   interface UpdateMsg {
     type: 'Update',
     channel?: string;

@@ -5,6 +5,9 @@
     },
     {
       "pattern": "*/dashboard"
+    },
+    {
+      "pattern": "types"
     }
   ]
 }
