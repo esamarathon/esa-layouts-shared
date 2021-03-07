@@ -8,12 +8,10 @@
     "watch": "node ../../node_modules/typescript/bin/tsc -b tsconfig.json -w"
   },
   "dependencies": {
-    "clone": "^2.1.2",
     "obs-websocket-js": "^4.0.2",
     "string-similarity": "^4.0.4"
   },
   "devDependencies": {
-    "@types/clone": "^2.1.0",
     "@types/string-similarity": "^4.0.0"
   }
 }
