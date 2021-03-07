@@ -2,6 +2,21 @@ import type * as types from '@esamarathon/mq-events/types';
 import { EventEmitter } from 'events';
 
 export namespace RabbitMQ {
+  type ListenTopics = {
+    name: string;
+    exchange: string;
+    key: string;
+  }[];
+
+  interface Config {
+    enable: boolean;
+    protocol: string;
+    hostname: string;
+    username: string;
+    password: string;
+    vhost: string;
+  }
+
   interface Options {
     connectionOptions: {
       credentials: {

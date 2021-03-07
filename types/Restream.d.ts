@@ -1,4 +1,13 @@
 export namespace Restream {
+  interface ConfigItem {
+    address: string;
+    key: string;
+  }
+  interface Config {
+    enable: boolean;
+    instances: ConfigItem | ConfigItem[];
+  }
+
   interface UpdateMsg {
     type: 'Update',
     channel?: string;

@@ -17,6 +17,11 @@
     "install-extensions": "cd mediabox/extension && npm install && cd ../../obs/extension && npm install && cd ../../rabbitmq/extension && npm install && cd ../../restream/extension && npm install && cd ../../x32/extension && npm install && cd ../../xkeys/extension && npm install",
     "schema-types": "nodecg schema-types -o types/schemas --no-config-schema"
   },
+  "dependencies": {
+    "@esamarathon/mq-events": "github:esamarathon/mq-events",
+    "clone": "^2.1.2",
+    "uuid": "^8.3.2"
+  },
   "devDependencies": {
     "@types/clone": "^2.1.0",
     "@types/node": "^14.14.31",
@@ -30,9 +35,5 @@
     "nodecg": "^1.7.4",
     "nodecg-cli": "^7.0.0",
     "typescript": "^4.2.3"
-  },
-  "dependencies": {
-    "clone": "^2.1.2",
-    "uuid": "^8.3.2"
   }
 }

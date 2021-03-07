@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import type { NodeCG } from 'nodecg/types/server';
 import { XKeys } from 'xkeys';
+import { XKeys as XKeysTypes } from '../../../types';
 
 interface XKeysClass {
   on(event: 'down', listener: (keyIndex: string) => void): this;
@@ -9,16 +10,12 @@ interface XKeysClass {
   on(event: 'shuttle', listener: (position: number) => void): this;
 }
 
-interface Config {
-  enable: boolean;
-}
-
 class XKeysClass extends EventEmitter {
   private nodecg: NodeCG;
-  private config: Config;
+  private config: XKeysTypes.Config;
   panel: XKeys | undefined;
 
-  constructor(nodecg: NodeCG, config: Config) {
+  constructor(nodecg: NodeCG, config: XKeysTypes.Config) {
     super();
     this.nodecg = nodecg;
     this.config = config;

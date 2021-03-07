@@ -3,6 +3,7 @@ import { EventEmitter } from 'events';
 import type { NodeCG } from 'nodecg/types/server';
 import ObsWebsocketJs from 'obs-websocket-js';
 import { findBestMatch } from 'string-similarity';
+import { OBS as OBSTypes } from '../../../types';
 
 interface OBS {
   on(event: 'streamingStatusChanged', listener: (streaming: boolean, old?: boolean) => void): this;
@@ -11,22 +12,16 @@ interface OBS {
   on(event: 'sceneListChanged', listener: (list: string[]) => void): this;
 }
 
-interface Config {
-  enable: boolean;
-  address: string;
-  password: string;
-}
-
 class OBS extends EventEmitter {
   private nodecg: NodeCG;
-  private config: Config;
+  private config: OBSTypes.Config;
   conn = new ObsWebsocketJs();
   currentScene: string | undefined;
   sceneList: string [] = [];
   connected = false;
   streaming: boolean | undefined;
 
-  constructor(nodecg: NodeCG, config: Config) {
+  constructor(nodecg: NodeCG, config: OBSTypes.Config) {
     super();
     this.nodecg = nodecg;
     this.config = config;

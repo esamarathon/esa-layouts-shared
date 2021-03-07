@@ -21,15 +21,6 @@ interface RestreamInstance {
   on(event: 'channelChange', listener: (channel?: string) => void): this;
 }
 
-interface ConfigItem {
-  address: string;
-  key: string;
-}
-interface Config {
-  enable: boolean;
-  instances: ConfigItem | ConfigItem[];
-}
-
 class RestreamInstance extends EventEmitter {
   private ws: WebSocket | undefined;
   private nodecg: NodeCG;
@@ -135,7 +126,7 @@ class Restream {
   instances: RestreamInstance[] = [];
   restreamData: Replicant<RestreamData>;
 
-  constructor(nodecg: NodeCG, sc: boolean, config: Config) {
+  constructor(nodecg: NodeCG, sc: boolean, config: RestreamTypes.Config) {
     this.nodecg = nodecg;
     this.restreamData = nodecg.Replicant('restreamData', {
       schemaPath: buildSchemaPath('restreamData'),

@@ -7,21 +7,6 @@ import { EventEmitter } from 'events';
 import type { NodeCG } from 'nodecg/types/server';
 import { RabbitMQ as RabbitMQTypes } from '../../../types';
 
-type ListenTopics = {
-  name: string;
-  exchange: string;
-  key: string;
-}[];
-
-interface Config {
-  enable: boolean;
-  protocol: string;
-  hostname: string;
-  username: string;
-  password: string;
-  vhost: string;
-}
-
 function getTimeInfo(): { unix: number; iso: string } {
   const nowDate: Date = new Date();
   return {
@@ -72,11 +57,11 @@ const testData: {
 
 class RabbitMQ {
   private nodecg: NodeCG;
-  private config: Config;
+  private config: RabbitMQTypes.Config;
   private chan: ChannelWrapper | undefined;
   private exchange: string;
   private event: string;
-  private listenTopics: ListenTopics;
+  private listenTopics: RabbitMQTypes.ListenTopics;
   private useTestData: boolean;
   evt = new EventEmitter() as RabbitMQTypes.Events;
 
@@ -84,10 +69,10 @@ class RabbitMQ {
     nodecg: NodeCG,
     useTestData: boolean,
     opts: {
-      config: Config,
+      config: RabbitMQTypes.Config,
       exchange: string,
       event: string,
-      listenTopics: ListenTopics,
+      listenTopics: RabbitMQTypes.ListenTopics,
     },
   ) {
     this.nodecg = nodecg;

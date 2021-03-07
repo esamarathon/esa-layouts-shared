@@ -30,6 +30,11 @@ module.exports = {
       ts: 'never',
       tsx: 'never',
     }],
+    'import/no-extraneous-dependencies': ['error', {
+      devDependencies: false,
+      optionalDependencies: false,
+      packageDir: ['.', '../..']
+    }],
     'max-len': ['error', { code: 100, ignorePattern: '^import\\s.+\\sfrom\\s.+;$' }],
     '@typescript-eslint/lines-between-class-members': 'off',
     'class-methods-use-this': 'off',
