@@ -13,6 +13,8 @@
   "license": "MIT",
   "author": "zoton2",
   "scripts": {
+    "build-extensions": "cd mediabox/extension && npm run build && cd ../../obs/extension && npm run build && cd ../../rabbitmq/extension && npm run build && cd ../../restream/extension && npm run build && cd ../../x32/extension && npm run build && cd ../../xkeys/extension && npm run build",
+    "install-extensions": "cd mediabox/extension && npm install && cd ../../obs/extension && npm install && cd ../../rabbitmq/extension && npm install && cd ../../restream/extension && npm install && cd ../../x32/extension && npm install && cd ../../xkeys/extension && npm install",
     "schema-types": "nodecg schema-types -o types/schemas --no-config-schema"
   },
   "devDependencies": {
