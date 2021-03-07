@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
-/* eslint-disable max-classes-per-file */
-
 import { EventEmitter } from 'events';
 import type { NodeCG, Replicant } from 'nodecg/types/server';
 import path from 'path';

@@ -66,7 +66,6 @@ class OBS extends EventEmitter {
         this.emit('streamingStatusChanged', this.streaming, !this.streaming);
       });
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: Pretty sure this emits an error.
       this.conn.on('error', (err) => {
         nodecg.log.warn('[OBS] Connection error');
@@ -254,7 +253,6 @@ class OBS extends EventEmitter {
         // OBS not enabled, don't even try to set.
         throw new Error('No connection available');
       }
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: Typings say we need to specify more than we actually do.
       await this.conn.send('SetSceneItemProperties', {
         'scene-name': scene,

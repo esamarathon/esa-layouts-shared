@@ -32,5 +32,6 @@ module.exports = {
     }],
     'max-len': ['error', { code: 100, ignorePattern: '^import\\s.+\\sfrom\\s.+;$' }],
     '@typescript-eslint/lines-between-class-members': 'off',
+    'class-methods-use-this': 'off',
   },
 };

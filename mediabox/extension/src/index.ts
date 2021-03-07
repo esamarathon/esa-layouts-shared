@@ -1,5 +1,3 @@
-/* eslint-disable class-methods-use-this */
-
 import clone from 'clone';
 import { EventEmitter } from 'events';
 import type { NodeCG, Replicant } from 'nodecg/types/server';

@@ -32,5 +32,7 @@ module.exports = {
     }],
     'max-len': ['error', { code: 100, ignorePattern: '^import\\s.+\\sfrom\\s.+;$' }],
     '@typescript-eslint/lines-between-class-members': 'off',
+    'max-classes-per-file': 'off',
+    '@typescript-eslint/naming-convention': 'off',
   },
 };
