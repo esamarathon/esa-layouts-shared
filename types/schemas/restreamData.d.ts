@@ -5,13 +5,10 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export interface CapturePositions {
-  [k: string]: {
-    [k: string]: {
-      x: number;
-      y: number;
-      width: number;
-      height: number;
-    };
-  };
-}
+export type RestreamData = {
+	connected: boolean;
+	uuid?: string;
+	channel?: string;
+	overridden: boolean;
+	lowLatency: boolean;
+}[];

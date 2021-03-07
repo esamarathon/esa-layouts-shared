@@ -5,10 +5,12 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export type RestreamData = {
-  connected: boolean;
-  uuid?: string;
-  channel?: string;
-  overridden: boolean;
-  lowLatency: boolean;
+export type Prizes = {
+	id: number;
+	name: string;
+	provided?: string;
+	minimumBid: number;
+	image?: string;
+	startTime?: number;
+	endTime?: number;
 }[];
