@@ -1,3 +1,3 @@
 import { VueConstructor } from 'vue';
-
-export default VueConstructor;
+const App: VueConstructor;
+export default App;

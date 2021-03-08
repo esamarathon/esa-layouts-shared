@@ -3,16 +3,17 @@
   "main": "dist/app.umd.js",
   "types": "types/index.d.ts",
   "scripts": {
-    "build": "vue-cli-service build --target lib --name app src/main.ts",
-    "watch": "vue-cli-service build --target lib --name app --watch src/main.ts"
+    "build": "vue-cli-service build --target lib --name app src/App.vue",
+    "watch": "vue-cli-service build --target lib --name app --watch src/App.vue"
   },
   "devDependencies": {
     "@vue/cli-plugin-typescript": "~4.5.0",
-    "@vue/cli-service": "~4.5.0",
-    "typescript": "~3.9.3",
+    "vue-cli-plugin-vuetify": "~2.2.2",
     "vue": "^2.6.11",
     "vue-class-component": "^7.2.3",
     "vue-property-decorator": "^9.1.2",
-    "vue-template-compiler": "^2.6.11"
+    "vue-template-compiler": "^2.6.11",
+    "vuetify": "^2.4.0",
+    "@vue/cli-service": "~4.5.0"
   }
 }
