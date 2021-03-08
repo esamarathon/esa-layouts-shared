@@ -6,7 +6,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import vuetify from './vuetify';
+import vuetify from '../../../browser_shared/vuetify';
 
 @Component({
   vuetify,
