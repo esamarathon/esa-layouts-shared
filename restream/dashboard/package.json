@@ -1,21 +1,18 @@
 {
   "private": true,
-  "main": "dist/app.common.js",
-  "types": "types.d.ts",
+  "main": "dist/app.umd.js",
+  "types": "types/index.d.ts",
   "scripts": {
-    "autofix": "node ../../node_modules/eslint/bin/eslint.js --fix --ext .ts,.vue src",
-    "build": "vue-cli-service build --target lib --name app src/main.ts"
+    "build": "vue-cli-service build --target lib --name app src/main.ts",
+    "watch": "vue-cli-service build --target lib --name app --watch src/main.ts"
   },
   "devDependencies": {
-    "@vue/cli-plugin-typescript": "^4.5.8",
-    "@vue/cli-service": "^4.5.8",
-    "sass": "^1.27.0",
-    "sass-loader": "^10.0.4",
-    "vue-class-component": "^7.2.6",
-    "vue-cli-plugin-vuetify": "^2.0.7",
-    "vue-property-decorator": "^9.0.2",
-    "vue-template-compiler": "^2.6.12",
-    "vuetify": "^2.3.16",
-    "vuetify-loader": "^1.6.0"
+    "@vue/cli-plugin-typescript": "~4.5.0",
+    "@vue/cli-service": "~4.5.0",
+    "typescript": "~3.9.3",
+    "vue": "^2.6.11",
+    "vue-class-component": "^7.2.3",
+    "vue-property-decorator": "^9.1.2",
+    "vue-template-compiler": "^2.6.11"
   }
 }

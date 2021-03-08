@@ -1,132 +1,58 @@
 <template>
-  <div>
-    <div class="font-weight-bold pb-1">
-      {{ name }}
-    </div>
-    <div class="d-flex">
-      <v-text-field
-        ref="ChannelEntry"
-        v-model="channelEntry"
-        label="Enter Twitch Channel"
-        hide-details
-        filled
-        :spellcheck="false"
-        :disabled="applying"
-        @keyup.enter="override"
-        @focus="focusChannelEntry"
-        @input="focusChannelEntry"
-        @blur="unfocusChannelEntry"
-      />
-      <v-btn
-        height="56px"
-        :style="{ 'min-width': '0', 'margin-left': '5px' }"
-        :disabled="applying"
-        :loading="applying"
-        @click="override"
-      >
-        <v-icon>mdi-check</v-icon>
-      </v-btn>
-    </div>
-    <v-switch
-      v-model="lowLatency"
-      class="ma-1"
-      hide-details
-      label="Low Latency"
-      :disabled="applying"
-      @change="changeLatency"
-    />
-    <div :style="{ 'margin': '10px 0' }">
-      <span :style="{ 'font-weight': 'bold' }">
-        Currently Overridden:
-      </span>
-      {{ overridden }}
-    </div>
-    <div class="d-flex">
-      <v-btn
-        :style="{ 'min-width': '0', flex: '1' }"
-        :disabled="applying"
-        @click="restart"
-      >
-        <v-icon>mdi-refresh</v-icon> Restart
-      </v-btn>
-      <v-btn
-        :style="{ 'min-width': '0', 'margin-left': '5px', flex: '1' }"
-        :disabled="applying"
-        @click="stop"
-      >
-        <v-icon>mdi-stop</v-icon> Stop
-      </v-btn>
-    </div>
+  <div class="hello">
+    <h1>{{ msg }}</h1>
+    <p>
+      For a guide and recipes on how to configure / customize this project,<br>
+      check out the
+      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
+    </p>
+    <h3>Installed CLI Plugins</h3>
+    <ul>
+      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-typescript" target="_blank" rel="noopener">typescript</a></li>
+      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
+    </ul>
+    <h3>Essential Links</h3>
+    <ul>
+      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
+      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
+      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
+      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
+      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
+    </ul>
+    <h3>Ecosystem</h3>
+    <ul>
+      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
+      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
+      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
+      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
+      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
+    </ul>
   </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'; // eslint-disable-line object-curly-newline, max-len
-import Vuetify from 'vuetify/lib';
-import { nodecg } from '../../../browser_shared/nodecg';
-import { RestreamData } from '../../../schemas';
-
-Vue.use(Vuetify);
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component
-export default class extends Vue {
-  @Prop({ type: String, default: 'Stream 1' }) name!: string;
-  @Prop({ type: Number, default: 0 }) index!: number;
-  @Prop(Array) restreamData!: RestreamData;
-  channelEntry = '';
-  lowLatency = true;
-  applying = false;
-  channelEntryFocused = false;
-  channelEntryFocusedTimeout: number | undefined;
-
-  @Watch('restreamData', { immediate: true })
-  onRestreamDataChanged(val: RestreamData): void {
-    if (!this.channelEntryFocused) {
-      this.channelEntry = val[this.index]?.channel || '';
-    }
-    this.lowLatency = val[this.index]?.lowLatency ?? true;
-  }
-
-  get overridden(): boolean {
-    return this.restreamData[this.index].overridden;
-  }
-
-  focusChannelEntry(): void {
-    this.channelEntryFocused = true;
-    window.clearTimeout(this.channelEntryFocusedTimeout);
-    this.channelEntryFocusedTimeout = window.setTimeout(() => {
-      (this.$refs.ChannelEntry as HTMLElement).blur();
-      this.channelEntry = this.restreamData[this.index].channel || '';
-    }, 5 * 1000);
-  }
-
-  unfocusChannelEntry(): void {
-    this.channelEntryFocused = false;
-    window.clearTimeout(this.channelEntryFocusedTimeout);
-  }
-
-  override(): void {
-    this.applying = true;
-    nodecg.sendMessage('restreamOverride', { index: this.index, channel: this.channelEntry })
-      .finally(() => { this.applying = false; });
-  }
-
-  changeLatency(): void {
-    this.applying = true;
-    nodecg.sendMessage('restreamOverride', { index: this.index, lowLatency: this.lowLatency })
-      .finally(() => { this.applying = false; });
-  }
-
-  restart(): void {
-    this.applying = true;
-    nodecg.sendMessage('restreamRestart', { index: this.index })
-      .finally(() => { this.applying = false; });
-  }
-
-  stop(): void {
-    this.applying = true;
-    nodecg.sendMessage('restreamStop', { index: this.index })
-      .finally(() => { this.applying = false; });
-  }
+export default class HelloWorld extends Vue {
+  @Prop() private msg!: string;
 }
 </script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+h3 {
+  margin: 40px 0 0;
+}
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+li {
+  display: inline-block;
+  margin: 0 10px;
+}
+a {
+  color: #42b983;
+}
+</style>
