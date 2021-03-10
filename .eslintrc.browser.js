@@ -1,42 +1,35 @@
+const path = require('path');
+
 module.exports = {
   root: true,
+  env: {
+    node: true,
+  },
   parser: 'vue-eslint-parser',
   parserOptions: {
     parser: '@typescript-eslint/parser',
-    project: 'tsconfig.json',
-    sourceType: 'module',
+    // project: 'tsconfig.json',
     extraFileExtensions: ['.vue'],
-  },
-  env: {
-    es6: true,
-    node: true,
+    ecmaVersion: 2020,
   },
   globals: {
     nodecg: 'readonly',
     NodeCG: 'readonly',
   },
   plugins: [
-    'vue',
     '@typescript-eslint',
   ],
   extends: [
-    'airbnb-base',
-    'plugin:vue/recommended',
+    'plugin:vue/essential',
+    'airbnb-typescript/base',
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:import/typescript',
   ],
   settings: {
-    'import/core-modules': ['nodecg/types/browser'],
-    'import/extensions': ['.js', '.jsx', '.ts', '.tsx'],
     'import/resolver': {
-      node: {
-        moduleDirectory: [
-          'node_modules',
-          '../..',
-          '..',
-          '.',
-        ],
+      typescript: {
+        // intentionally left blank
       },
     },
   },
@@ -48,10 +41,22 @@ module.exports = {
       tsx: 'never',
     }],
     'import/no-extraneous-dependencies': ['error', {
-      packageDir: ['.', '../..'],
+      devDependencies: true, // Everything is compiled for the browser so dev dependencies are fine.
+      optionalDependencies: false,
+      packageDir: ['.', '../..']
     }],
-    'lines-between-class-members': 'off',
-    'max-len': ['error', { 'code': 100 }],
+    // max-len set to ignore "import" lines (as they usually get long and messy).
+    'max-len': ['error', { code: 100, ignorePattern: '^import\\s.+\\sfrom\\s.+;$' }],
+    'object-curly-newline': 'off',
+    '@typescript-eslint/lines-between-class-members': 'off',
     'class-methods-use-this': 'off',
-  },
+    'no-param-reassign': ['error', {
+      props: true,
+      ignorePropertyModificationsFor: [
+        'state', // for vuex state
+        'acc', // for reduce accumulators
+        'e', // for e.returnvalue
+      ],
+    }],
+  }
 };

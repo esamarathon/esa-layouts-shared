@@ -7,13 +7,12 @@
     "importHelpers": true,
     "moduleResolution": "node",
     "experimentalDecorators": true,
+    "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "types": [
-      "webpack-env",
-      "vuetify",
-      "node"
+      "webpack-env"
     ],
     "lib": [
       "esnext",
@@ -21,11 +20,5 @@
       "dom.iterable",
       "scripthost"
     ]
-  },
-  "include": [
-    "types/*.d.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  }
 }

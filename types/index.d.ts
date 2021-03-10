@@ -5,4 +5,4 @@ export * from './RabbitMQ';
 export * from './Restream';
 export * from './Tracker';
 export * from './X32';
-export * from './XKeysLib';
+export * from './XKeys';

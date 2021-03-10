@@ -182,7 +182,8 @@ class OBS extends EventEmitter {
       throw new Error('No connection available');
     }
     try {
-      return await this.conn.send('GetSourceSettings', { sourceName });
+      const resp = await this.conn.send('GetSourceSettings', { sourceName });
+      return resp;
     } catch (err) {
       this.nodecg.log.warn(`[OBS] Cannot get source settings [${sourceName}]`);
       this.nodecg.log.debug(`[OBS] Cannot get source settings [${sourceName}]: `
@@ -250,7 +251,7 @@ class OBS extends EventEmitter {
       // @ts-ignore: Typings say we need to specify more than we actually do.
       await this.conn.send('SetSceneItemProperties', {
         'scene-name': scene,
-        item,
+        item: { name: item },
         visible: visible ?? true,
         position: {
           x: area?.x ?? 0,

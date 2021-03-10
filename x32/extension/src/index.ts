@@ -1,8 +1,6 @@
-/* eslint-disable no-restricted-syntax */
-
 import type { NodeCG } from 'nodecg/types/server';
 import osc from 'osc';
-import type { X32 as X32Types } from '../../../types';
+import { X32 as X32Types } from '../../../types';
 
 class X32 {
   private nodecg: NodeCG;

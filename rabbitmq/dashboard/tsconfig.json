@@ -1,16 +1,16 @@
 {
   "extends": "../../tsconfig.browser.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": [
-        "src/*"
-      ]
-    }
+    "baseUrl": "."
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.vue",
-    "../../types/*.d.ts"
+    "types/**/*.d.ts",
+    "../../types/**/*.d.ts",
+    "../../node_modules/nodecg/types/browser.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }

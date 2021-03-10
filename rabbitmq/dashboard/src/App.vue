@@ -26,12 +26,11 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator';
-import Vuetify from 'vuetify/lib';
-import { nodecg } from '../../../browser_shared/nodecg';
+import vuetify from '../../../browser_shared/vuetify';
 
-Vue.use(Vuetify);
-
-@Component
+@Component({
+  vuetify,
+})
 export default class extends Vue {
   @Prop(Boolean) enable!: boolean;
   @Prop(Boolean) useTestData!: boolean;

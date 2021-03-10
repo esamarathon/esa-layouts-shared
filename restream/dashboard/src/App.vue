@@ -61,14 +61,13 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'; // eslint-disable-line object-curly-newline, max-len
-import Vuetify from 'vuetify/lib';
-import { nodecg } from '../../../browser_shared/nodecg';
-import { RestreamData } from '../../../schemas';
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
+import vuetify from '../../../browser_shared/vuetify';
+import { RestreamData } from '../../../types/schemas';
 
-Vue.use(Vuetify);
-
-@Component
+@Component({
+  vuetify,
+})
 export default class extends Vue {
   @Prop({ type: String, default: 'Stream 1' }) name!: string;
   @Prop({ type: Number, default: 0 }) index!: number;

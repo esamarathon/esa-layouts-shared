@@ -1,21 +1,27 @@
 module.exports = {
   root: true,
-  parser: '@typescript-eslint/parser',
-  parserOptions: {
-    project: 'tsconfig.json',
+  env: {
+    node: true,
   },
+  parser: '@typescript-eslint/parser',
+  /* parserOptions: {
+    project: 'tsconfig.json',
+  }, */
   plugins: [
     '@typescript-eslint',
   ],
   extends: [
-    'airbnb-base',
+    'airbnb-typescript/base',
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:import/typescript',
   ],
   settings: {
-    'import/core-modules': ['nodecg/types/server'],
-    'import/extensions': ['.js', '.jsx', '.ts', '.tsx'],
+    'import/resolver': {
+      typescript: {
+        // intentionally left blank
+      },
+    },
   },
   rules: {
     'import/extensions': ['error', 'ignorePackages', {
@@ -25,11 +31,12 @@ module.exports = {
       tsx: 'never',
     }],
     'import/no-extraneous-dependencies': ['error', {
-      packageDir: ['.', '../..'],
+      devDependencies: false,
+      optionalDependencies: false,
+      packageDir: ['.', '../..']
     }],
-    'lines-between-class-members': 'off',
-    'max-len': ['error', { 'code': 100 }],
+    'max-len': ['error', { code: 100, ignorePattern: '^import\\s.+\\sfrom\\s.+;$' }],
+    '@typescript-eslint/lines-between-class-members': 'off',
     'class-methods-use-this': 'off',
-    '@typescript-eslint/ban-ts-comment': 'off',
   },
 };

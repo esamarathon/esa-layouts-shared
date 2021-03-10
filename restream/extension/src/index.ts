@@ -1,12 +1,10 @@
-/* eslint-disable max-classes-per-file */
-
 import { EventEmitter } from 'events';
 import type { NodeCG, Replicant } from 'nodecg/types/server';
 import path from 'path';
 import { v4 as uuid } from 'uuid';
 import WebSocket from 'ws';
-import { RestreamData } from '../../../schemas';
 import { Restream as RestreamTypes } from '../../../types';
+import { RestreamData } from '../../../types/schemas';
 
 /**
  * Calculates the absolute file path to one of our local replicant schemas.

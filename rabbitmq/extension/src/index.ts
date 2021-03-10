@@ -1,17 +1,11 @@
-import { OmnibarModeration, Tracker } from '@esamarathon/mq-events/types';
-import amqpConnectionManager from 'amqp-connection-manager';
+import type { OmnibarModeration, Tracker } from '@esamarathon/mq-events/types';
 import type { ChannelWrapper } from 'amqp-connection-manager';
-import amqplib from 'amqplib';
+import amqpConnectionManager from 'amqp-connection-manager';
 import type { ConfirmChannel, Message } from 'amqplib';
+import amqplib from 'amqplib';
 import { EventEmitter } from 'events';
 import type { NodeCG } from 'nodecg/types/server';
 import { RabbitMQ as RabbitMQTypes } from '../../../types';
-
-type ListenTopics = {
-  name: string;
-  exchange: string;
-  key: string;
-}[];
 
 function getTimeInfo(): { unix: number; iso: string } {
   const nowDate: Date = new Date();
@@ -67,7 +61,7 @@ class RabbitMQ {
   private chan: ChannelWrapper | undefined;
   private exchange: string;
   private event: string;
-  private listenTopics: ListenTopics;
+  private listenTopics: RabbitMQTypes.ListenTopics;
   private useTestData: boolean;
   evt = new EventEmitter() as RabbitMQTypes.Events;
 
@@ -78,7 +72,7 @@ class RabbitMQ {
       config: RabbitMQTypes.Config,
       exchange: string,
       event: string,
-      listenTopics: ListenTopics,
+      listenTopics: RabbitMQTypes.ListenTopics,
     },
   ) {
     this.nodecg = nodecg;

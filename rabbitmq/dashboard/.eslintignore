@@ -1,3 +1,7 @@
 .eslintrc.js
 vue.config.js
-types.d.ts
+dist/**/*
+node_modules/**/*
+
+# Excluding types as we only store a generic Vue.js type currently.
+types/**/*
