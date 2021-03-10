@@ -1,0 +1,45 @@
+name: Build
+
+on:
+  #push:
+    #branches: [ master ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Clone this repoisitory
+    - name: Clone this repository
+      uses: actions/checkout@v2
+
+    # Setup some Node stuff
+    - name: Node.js setup
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    # Install NPM dependencies and build
+    - name: Install NPM dependencies and build
+      working-directory: ./nodecg/bundles/esa-layouts
+      run: |
+        npm ci
+        npm run build
+
+    # Commit newly built files
+    - name: Commit built files
+      run: |
+        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add -f ':(glob)./*/*/dist/**' ':(exclude)node_modules'
+        git commit -m "Built files" -a
+
+    # Pushes the built files to a specific branch
+    - name: Push built files to "build" branch
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets['GH_PAT'] }}
+        branch: build
+        force: true
