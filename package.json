@@ -13,11 +13,17 @@
   "license": "MIT",
   "author": "zoton2",
   "scripts": {
-    "autofix:extensions": "cd mediabox/extension && npm run autofix && cd ../../obs/extension && npm run autofix && cd ../../rabbitmq/extension && npm run autofix && cd ../../restream/extension && npm run autofix && cd ../../x32/extension && npm run autofix && cd ../../xkeys/extension && npm run autofix",
-    "autofix:types": "cd types && node ../node_modules/eslint/bin/eslint.js --fix --ext .d.ts types",
-    "build:extensions": "cd mediabox/extension && npm run build && cd ../../obs/extension && npm run build && cd ../../rabbitmq/extension && npm run build && cd ../../restream/extension && npm run build && cd ../../x32/extension && npm run build && cd ../../xkeys/extension && npm run build",
-    "install:extensions": "cd mediabox/extension && npm install && cd ../../obs/extension && npm install && cd ../../rabbitmq/extension && npm install && cd ../../restream/extension && npm install && cd ../../x32/extension && npm install && cd ../../xkeys/extension && npm install",
-    "schema-types": "nodecg schema-types -o types/schemas --no-config-schema"
+    "autofix": "concurrently \"npm:autofix:*\"",
+    "autofix:dashboard": "node cmd.js -c dashboard -s autofix",
+    "autofix:extension": "node cmd.js -c extension -s autofix",
+    "autofix:types": "cd types && node ../node_modules/eslint/bin/eslint.js --fix --ext .d.ts .",
+    "build": "concurrently \"npm:build:*\"",
+    "build:dashboard": "node cmd.js -c dashboard -s build",
+    "build:extension": "node cmd.js -c extension -s build",
+    "schema-types": "nodecg schema-types -o types/schemas --no-config-schema",
+    "watch": "concurrently \"npm:watch:*\"",
+    "watch:dashboard": "node cmd.js -c dashboard -s watch",
+    "watch:extension": "node cmd.js -c extension -s watch"
   },
   "dependencies": {
     "@esamarathon/mq-events": "github:esamarathon/mq-events",
@@ -42,17 +48,20 @@
     "@types/ws": "^7.4.0",
     "@typescript-eslint/eslint-plugin": "^4.16.1",
     "@typescript-eslint/parser": "^4.16.1",
+    "concurrently": "^6.0.0",
     "eslint": "^7.21.0",
     "eslint-config-airbnb-typescript": "^12.3.1",
     "eslint-import-resolver-typescript": "^2.4.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-vue": "^7.7.0",
+    "globby": "^11.0.2",
     "nodecg": "^1.7.4",
     "nodecg-cli": "^7.0.0",
     "typescript": "^4.2.3",
     "vue-class-component": "^7.2.3",
     "vue-property-decorator": "^9.1.2",
     "vue-template-compiler": "^2.6.11",
-    "vuetify": "^2.4.0"
+    "vuetify": "^2.4.0",
+    "yargs": "^16.2.0"
   }
 }
