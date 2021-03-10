@@ -27,7 +27,7 @@
     "watch:extension": "node cmd.js -c extension -s watch"
   },
   "dependencies": {
-    "@esamarathon/mq-events": "github:esamarathon/mq-events",
+    "@esamarathon/mq-events": "https://github.com/esamarathon/mq-events.git",
     "amqp-connection-manager": "^3.2.2",
     "amqplib": "^0.7.0",
     "clone": "^2.1.2",
