@@ -21,6 +21,11 @@ jobs:
       with:
         node-version: '14'
 
+    - name: GitHub SSH setup
+      uses: webfactory/ssh-agent@master
+      with:
+        ssh-private-key: ${{ secrets['GH_SSH'] }}
+
     # Install NPM dependencies and build
     - name: Install NPM dependencies and build
       run: |
