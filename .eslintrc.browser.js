@@ -47,6 +47,7 @@ module.exports = {
     }],
     // max-len set to ignore "import" lines (as they usually get long and messy).
     'max-len': ['error', { code: 100, ignorePattern: '^import\\s.+\\sfrom\\s.+;$' }],
+    'object-curly-newline': 'off',
     '@typescript-eslint/lines-between-class-members': 'off',
     'class-methods-use-this': 'off',
     'no-param-reassign': ['error', {
