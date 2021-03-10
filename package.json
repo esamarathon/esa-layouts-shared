@@ -20,6 +20,7 @@
     "build": "concurrently \"npm:build:*\"",
     "build:dashboard": "node cmd.js -c dashboard -s build",
     "build:extension": "node cmd.js -c extension -s build",
+    "install:dashboard": "node cmd.js -c dashboard -s install",
     "schema-types": "nodecg schema-types -o types/schemas --no-config-schema",
     "watch": "concurrently \"npm:watch:*\"",
     "watch:dashboard": "node cmd.js -c dashboard -s watch",
