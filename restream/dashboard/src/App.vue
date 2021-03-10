@@ -63,7 +63,6 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
 import vuetify from '../../../browser_shared/vuetify';
-import { nodecg } from '../../../browser_shared/nodecg';
 import { RestreamData } from '../../../types/schemas';
 
 @Component({

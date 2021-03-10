@@ -4,8 +4,7 @@ module.exports = {
     'vetur.validation.template': false,
   },
   projects: [
-    {
-      root: './restream/dashboard',
-    },
+    { root: './restream/dashboard' },
+    { root: './rabbitmq/dashboard' },
   ]
 }

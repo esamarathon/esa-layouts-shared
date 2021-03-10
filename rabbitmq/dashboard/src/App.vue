@@ -27,7 +27,6 @@
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator';
 import vuetify from '../../../browser_shared/vuetify';
-import { nodecg } from '../../../browser_shared/nodecg';
 
 @Component({
   vuetify,
