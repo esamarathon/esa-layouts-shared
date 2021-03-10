@@ -23,7 +23,6 @@ jobs:
 
     # Install NPM dependencies and build
     - name: Install NPM dependencies and build
-      working-directory: ./nodecg/bundles/esa-layouts
       run: |
         npm ci
         npm run build
