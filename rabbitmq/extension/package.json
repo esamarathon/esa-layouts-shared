@@ -6,13 +6,5 @@
     "autofix": "node ../../node_modules/eslint/bin/eslint.js --fix --ext .ts src",
     "build": "node ../../node_modules/typescript/bin/tsc -b tsconfig.json",
     "watch": "node ../../node_modules/typescript/bin/tsc -b tsconfig.json -w"
-  },
-  "dependencies": {
-    "amqp-connection-manager": "^3.2.2",
-    "amqplib": "^0.7.0"
-  },
-  "devDependencies": {
-    "@types/amqp-connection-manager": "^2.0.10",
-    "@types/amqplib": "^0.5.17"
   }
 }
