@@ -30,6 +30,7 @@ jobs:
     - name: Install NPM dependencies and build
       run: |
         npm ci
+        node cmd.js -c dashboard -s ci
         npm run build
 
     # Commit newly built files

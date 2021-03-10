@@ -21,6 +21,7 @@ const args = yargs.options({
       'build',
       'watch',
       'install',
+      'ci',
     ],
     default: 'build',
   }
@@ -28,5 +29,5 @@ const args = yargs.options({
 
 const packages = globby.sync(`*/${args.c}/package.json`);
 const dirs = packages.map((pkg) => dirname(pkg));
-concurrently(dirs.map((d) => ({ command: `cd ${d} && npm ${args.s !== 'install' ? 'run ' : ''}${args.s}` })))
+concurrently(dirs.map((d) => ({ command: `cd ${d} && npm ${!['install', 'ci'].includes(args.s) ? 'run ' : ''}${args.s}` })))
   .catch((err) => { console.log(err); });
