@@ -21,6 +21,7 @@ jobs:
       with:
         node-version: '14'
 
+    # Setup GitHub SSH key so we can npm install GitHub repositories (even needed for public ones)
     - name: GitHub SSH setup
       uses: webfactory/ssh-agent@master
       with:
