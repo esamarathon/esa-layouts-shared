@@ -11,21 +11,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Clone this repositories "build" branch
-    - name: Clone this repositories "build" branch
+    # Set the local git user config to use the GitHub Actions bot account
+    - name: Set local git config user details
+      run: |
+        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+
+    # Checkout this branch of this repository
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    # Checkout the "build" branch of this repository
+    - name: Checkout build branch
       uses: actions/checkout@v2
       with:
         token: ${{ secrets['GH_PAT'] }}
         ref: build
 
-    # Merge changes from the main branch into the "build" branch
-    - name: Merge main branch into "build" branch
-      uses: devmasx/merge-branch@v1.3.1
-      with:
-        type: now
-        from_branch: master
-        target_branch: build
-        github_token: ${{ secrets['GH_PAT'] }}
+    # Merge this branch into the "build" branch
+    - name: Merge into build branch
+      run: git merge master
 
     # Setup some Node.js stuff
     - name: Node.js setup
@@ -49,8 +54,6 @@ jobs:
     # Commit newly built files
     - name: Commit built files
       run: |
-        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
         git add -f ':(glob)./*/*/dist/**' ':(exclude)node_modules'
         git commit -m "Built files" -a
 
