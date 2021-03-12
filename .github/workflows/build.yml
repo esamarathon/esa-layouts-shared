@@ -54,13 +54,15 @@ jobs:
     # Commit newly built files
     # This can "fail" if there are no newly changed/built files, but the next step should continue anyway.
     - name: Commit built files
+      id: commit
+      continue-on-error: true
       run: |
         git add -f ':(glob)./*/*/dist/**' ':(exclude)node_modules'
         git commit -m "Built files" -a
 
-    # Pushes the built files (even if the last step produces an error)
+    # Pushes the built files
     - name: Push built files
-      if: always()
+      if: ${{ steps.commit.outcome == 'success' }}
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets['GH_PAT'] }}
