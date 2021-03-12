@@ -11,11 +11,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Clone this repoisitory
-    - name: Clone this repository
+    # Clone this repositories "build" branch
+    - name: Clone this repositories "build" branch
       uses: actions/checkout@v2
+      with:
+        token: ${{ secrets['GH_PAT'] }}
+        ref: build
 
-    # Setup some Node stuff
+    # Merge changes from the main branch into the "build" branch
+    - name: Merge main branch into "build" branch
+      uses: devmasx/merge-branch@v1.3.1
+      with:
+        type: now
+        from_branch: master
+        target_branch: build
+        github_token: ${{ secrets['GH_PAT'] }}
+
+    # Setup some Node.js stuff
     - name: Node.js setup
       uses: actions/setup-node@v2
       with:
@@ -42,10 +54,9 @@ jobs:
         git add -f ':(glob)./*/*/dist/**' ':(exclude)node_modules'
         git commit -m "Built files" -a
 
-    # Pushes the built files to a specific branch
-    - name: Push built files to "build" branch
+    # Pushes the built files
+    - name: Push built files
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets['GH_PAT'] }}
         branch: build
-        force: true
