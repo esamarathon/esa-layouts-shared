@@ -11,15 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Checkout the main branch of this repository
-    - name: Checkout
-      uses: actions/checkout@v2
-      with:
-        token: ${{ secrets['GH_PAT'] }}
-        ref: master
-
     # Checkout the "build" branch of this repository
-    - name: Checkout build branch
+    - name: Checkout
       uses: actions/checkout@v2
       with:
         token: ${{ secrets['GH_PAT'] }}
@@ -33,7 +26,7 @@ jobs:
 
     # Merge this branch into the "build" branch
     - name: Merge into build branch
-      run: git merge origin/master
+      run: git merge master
 
     # Setup some Node.js stuff
     - name: Node.js setup
