@@ -11,12 +11,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Checkout the "build" branch of this repository
+    # Checkout the main branch of this repository with full depth
     - name: Checkout
       uses: actions/checkout@v2
       with:
         token: ${{ secrets['GH_PAT'] }}
-        ref: build
+        ref: master
+        fetch-depth: 0
 
     # Set the local git user config to use the GitHub Actions bot account
     - name: Set local git config user details
@@ -24,9 +25,12 @@ jobs:
         git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
 
-    # Merge this branch into the "build" branch
-    - name: Merge into build branch
-      run: git merge master
+    # Recheckout both the main and build branches and merge the main into build.
+    - name: (Re)checkout both branches and merge main into build
+      run: |
+        git checkout master
+        git checkout build
+        git merge master
 
     # Setup some Node.js stuff
     - name: Node.js setup
