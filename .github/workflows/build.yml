@@ -11,9 +11,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Checkout this branch of this repository
+    # Checkout the main branch of this repository
     - name: Checkout
       uses: actions/checkout@v2
+      with:
+        token: ${{ secrets['GH_PAT'] }}
+        ref: master
 
     # Checkout the "build" branch of this repository
     - name: Checkout build branch
