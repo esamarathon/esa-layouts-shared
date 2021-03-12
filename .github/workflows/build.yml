@@ -33,7 +33,7 @@ jobs:
 
     # Merge this branch into the "build" branch
     - name: Merge into build branch
-      run: git merge master
+      run: git merge origin/master
 
     # Setup some Node.js stuff
     - name: Node.js setup
