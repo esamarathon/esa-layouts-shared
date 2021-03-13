@@ -6,5 +6,6 @@ module.exports = {
   projects: [
     { root: './restream/dashboard' },
     { root: './rabbitmq/dashboard' },
+    { root: './mediabox/dashboard' },
   ]
 }

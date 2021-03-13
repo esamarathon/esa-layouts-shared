@@ -60,10 +60,10 @@
 import { Vue, Component } from 'vue-property-decorator';
 import { State } from 'vuex-class';
 import Draggable from 'vuedraggable';
-import { Tracker, MediaBox } from 'types';
-import { Prizes } from 'schemas';
+import { Tracker, MediaBox } from '../../../../types';
+import { Prizes } from '../../../../types/schemas';
 import { clone, isPrizeApplicable } from './shared';
-import MediaCard from '../../_misc/components/MediaCard.vue';
+import MediaCard from './MediaCard.vue';
 import ApplicableIcon from './ApplicableIcon.vue';
 
 @Component({

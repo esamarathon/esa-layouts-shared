@@ -21,13 +21,16 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
 import { State, Action } from 'vuex-class';
-import { Save } from './store';
+import { Save, store } from './store';
 import AvailableImages from './components/AvailableImages.vue';
 import AvailablePrizes from './components/AvailablePrizes.vue';
 import Rotation from './components/Rotation.vue';
 import CurrentMediaInfo from './components/CurrentMediaInfo.vue';
+import vuetify from '../../../browser_shared/vuetify';
 
 @Component({
+  vuetify,
+  store,
   components: {
     AvailableImages,
     AvailablePrizes,

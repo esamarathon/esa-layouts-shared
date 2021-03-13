@@ -10,7 +10,7 @@
         'white-space': 'unset',
       }"
     >
-      Add images under "Assets" > "BUNDLE_NAME" > "Media Box Images".
+      Add images under "Assets" > "{{ bundleName }}" > "Media Box Images".
     </media-card>
     <draggable
       v-else
@@ -34,9 +34,9 @@
 import { Vue, Component } from 'vue-property-decorator';
 import { State } from 'vuex-class';
 import Draggable from 'vuedraggable';
-import { Asset, MediaBox } from 'types';
+import { Asset, MediaBox } from '../../../../types';
 import { clone } from './shared';
-import MediaCard from '../../_misc/components/MediaCard.vue';
+import MediaCard from './MediaCard.vue';
 
 @Component({
   components: {
@@ -46,6 +46,7 @@ import MediaCard from '../../_misc/components/MediaCard.vue';
 })
 export default class extends Vue {
   @State images!: Asset[];
+  bundleName = nodecg.bundleName;
 
   clone(original: Asset): MediaBox.RotationElem {
     return clone('image', original.sum);
