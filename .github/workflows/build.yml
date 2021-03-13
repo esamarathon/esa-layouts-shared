@@ -62,7 +62,7 @@ jobs:
 
     # Pushes the built files
     - name: Push built files
-      if: ${{ steps.commit.outcome == 'success' }}
+      #if: ${{ steps.commit.outcome == 'success' }}
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets['GH_PAT'] }}
