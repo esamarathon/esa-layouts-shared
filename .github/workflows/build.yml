@@ -44,12 +44,15 @@ jobs:
       with:
         ssh-private-key: ${{ secrets['GH_SSH'] }}
 
-    # Install NPM dependencies and build
-    - name: Install NPM dependencies and build
+    # Install NPM dependencies
+    - name: Install NPM dependencies
       run: |
         npm ci
         node cmd.js -c dashboard -s ci
-        npm run build
+
+    # Actually build everything
+    - name: Build
+      run: npm run build
 
     # Commit newly built files
     # This can "fail" if there are no newly changed/built files, but the next step should continue anyway.
