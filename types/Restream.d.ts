@@ -11,7 +11,6 @@ export namespace Restream {
   interface UpdateMsg {
     type: 'Update',
     channel?: string;
-    lowLatency?: boolean;
     uuid: string;
   }
   interface ResponseMsg {
@@ -19,7 +18,6 @@ export namespace Restream {
     // err?: string; // Should only appear on ResponseErr!
     msgID: string;
     channel?: string;
-    lowLatency?: boolean;
     uuid: string;
   }
   interface ResponseErr extends ResponseMsg {
@@ -30,7 +28,6 @@ export namespace Restream {
   interface Start {
     type: 'Start';
     channel?: string;
-    lowLatency?: boolean;
   }
   interface Stop {
     type: 'Stop';
