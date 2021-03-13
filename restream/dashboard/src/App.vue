@@ -27,14 +27,14 @@
         <v-icon>mdi-check</v-icon>
       </v-btn>
     </div>
-    <v-switch
+    <!--<v-switch
       v-model="lowLatency"
       class="ma-1"
       hide-details
       label="Low Latency"
       :disabled="applying"
       @change="changeLatency"
-    />
+    />-->
     <div :style="{ 'margin': '10px 0' }">
       <span :style="{ 'font-weight': 'bold' }">
         Currently Overridden:
@@ -73,7 +73,7 @@ export default class extends Vue {
   @Prop({ type: Number, default: 0 }) index!: number;
   @Prop(Array) restreamData!: RestreamData;
   channelEntry = '';
-  lowLatency = true;
+  // lowLatency = true;
   applying = false;
   channelEntryFocused = false;
   channelEntryFocusedTimeout: number | undefined;
@@ -83,7 +83,7 @@ export default class extends Vue {
     if (!this.channelEntryFocused) {
       this.channelEntry = val[this.index]?.channel || '';
     }
-    this.lowLatency = val[this.index]?.lowLatency ?? true;
+    // this.lowLatency = val[this.index]?.lowLatency ?? true;
   }
 
   get overridden(): boolean {
@@ -110,11 +110,11 @@ export default class extends Vue {
       .finally(() => { this.applying = false; });
   }
 
-  changeLatency(): void {
+  /* changeLatency(): void {
     this.applying = true;
     nodecg.sendMessage('restreamOverride', { index: this.index, lowLatency: this.lowLatency })
       .finally(() => { this.applying = false; });
-  }
+  } */
 
   restart(): void {
     this.applying = true;

@@ -18,16 +18,11 @@
       "overridden": {
         "type": "boolean",
         "default": false
-      },
-      "lowLatency": {
-        "type": "boolean",
-        "default": true
       }
     },
     "required": [
       "connected",
-      "overridden",
-      "lowLatency"
+      "overridden"
     ]
   },
   "default": []
