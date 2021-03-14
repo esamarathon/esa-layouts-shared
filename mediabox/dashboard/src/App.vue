@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <available-images />
-    <available-prizes :style="{ 'margin-top': '20px' }" />
+    <available-prizes v-if="prizes" :style="{ 'margin-top': '20px' }" />
     <rotation :style="{ 'margin-top': '20px' }" />
 
     <!-- Save Button -->
@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator';
+import { Vue, Component, Prop } from 'vue-property-decorator';
 import { State, Action } from 'vuex-class';
 import { Save, store } from './store';
 import AvailableImages from './components/AvailableImages.vue';
@@ -39,6 +39,7 @@ import vuetify from '../../../browser_shared/vuetify';
   },
 })
 export default class extends Vue {
+  @Prop({ type: Boolean, default: true }) prizes!: boolean;
   @State disableSave!: boolean;
   @Action save!: Save;
 }
