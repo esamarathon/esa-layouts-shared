@@ -16,15 +16,19 @@
     "autofix": "concurrently \"npm:autofix:*\"",
     "autofix:dashboard": "node cmd.js -c dashboard -s autofix",
     "autofix:extension": "node cmd.js -c extension -s autofix",
+    "autofix:graphics": "node cmd.js -c graphics -s autofix",
     "autofix:types": "cd types && node ../node_modules/eslint/bin/eslint.js --fix --ext .d.ts .",
     "build": "concurrently \"npm:build:*\"",
     "build:dashboard": "node cmd.js -c dashboard -s build",
     "build:extension": "node cmd.js -c extension -s build",
+    "build:graphics": "node cmd.js -c graphics -s build",
     "install:dashboard": "node cmd.js -c dashboard -s install",
+    "install:graphics": "node cmd.js -c graphics -s install",
     "schema-types": "nodecg schema-types -o types/schemas --no-config-schema",
     "watch": "concurrently \"npm:watch:*\"",
     "watch:dashboard": "node cmd.js -c dashboard -s watch",
-    "watch:extension": "node cmd.js -c extension -s watch"
+    "watch:extension": "node cmd.js -c extension -s watch",
+    "watch:graphics": "node cmd.js -c graphics -s watch"
   },
   "dependencies": {
     "@esamarathon/mq-events": "git+https://git@github.com/esamarathon/mq-events.git#fa96a89",

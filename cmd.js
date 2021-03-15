@@ -10,6 +10,7 @@ const args = yargs.options({
     choices: [
       'dashboard',
       'extension',
+      'graphics',
     ],
     default: 'extension',
   },

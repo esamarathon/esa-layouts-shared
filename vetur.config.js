@@ -8,5 +8,6 @@ module.exports = {
     { root: './rabbitmq/dashboard' },
     { root: './mediabox/dashboard' },
     { root: './countdown/dashboard' },
+    { root: './countdown/graphics' },
   ]
 }
