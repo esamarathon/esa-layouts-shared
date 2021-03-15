@@ -7,5 +7,6 @@ module.exports = {
     { root: './restream/dashboard' },
     { root: './rabbitmq/dashboard' },
     { root: './mediabox/dashboard' },
+    { root: './countdown/dashboard' },
   ]
 }
