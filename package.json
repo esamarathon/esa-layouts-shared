@@ -74,6 +74,7 @@
     "vuex": "^3.6.2",
     "vuex-class": "^0.3.2",
     "vuex-class-state2way": "^1.0.1",
+    "vuex-module-decorators": "^1.0.1",
     "yargs": "^16.2.0"
   }
 }
