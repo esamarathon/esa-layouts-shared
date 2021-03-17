@@ -49,6 +49,7 @@ jobs:
       run: |
         npm ci
         node cmd.js -c dashboard -s ci
+        node cmd.js -c graphics -s ci
 
     # Actually build everything
     - name: Build
