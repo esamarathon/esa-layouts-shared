@@ -11,6 +11,9 @@
     },
     {
       "pattern": "types"
+    },
+    {
+      "pattern": "browser_shared"
     }
   ],
   "typescript.tsdk": "node_modules\\typescript\\lib"

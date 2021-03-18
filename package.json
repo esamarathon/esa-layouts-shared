@@ -14,6 +14,7 @@
   "author": "zoton2",
   "scripts": {
     "autofix": "concurrently \"npm:autofix:*\"",
+    "autofix:browser_shared": "cd browser_shared && node ../node_modules/eslint/bin/eslint.js --fix --ext .ts .",
     "autofix:dashboard": "node cmd.js -c dashboard -s autofix",
     "autofix:extension": "node cmd.js -c extension -s autofix",
     "autofix:graphics": "node cmd.js -c graphics -s autofix",
