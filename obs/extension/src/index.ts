@@ -61,7 +61,6 @@ class OBS extends EventEmitter {
         this.emit('streamingStatusChanged', this.streaming, !this.streaming);
       });
 
-      // @ts-ignore: Pretty sure this emits an error.
       this.conn.on('error', (err) => {
         nodecg.log.warn('[OBS] Connection error');
         nodecg.log.debug('[OBS] Connection error:', err);
