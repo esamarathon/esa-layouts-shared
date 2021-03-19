@@ -38,6 +38,15 @@ jobs:
       with:
         node-version: '14'
 
+    # Set NPM cache options
+    - name: Set NPM cache
+      uses: actions/cache@v2
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
     # Update NPM to the latest version
     - name: Update NPM installation
       run: npm install -g npm@latest
