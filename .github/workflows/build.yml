@@ -15,7 +15,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
       with:
-        token: ${{ secrets['GH_PAT'] }}
+        token: ${{ secrets['GITHUB_TOKEN'] }}
         ref: master
         fetch-depth: 0
 
@@ -84,5 +84,5 @@ jobs:
       #if: ${{ steps.commit.outcome == 'success' }}
       uses: ad-m/github-push-action@master
       with:
-        github_token: ${{ secrets['GH_PAT'] }}
+        github_token: ${{ secrets['GITHUB_TOKEN'] }}
         branch: build
