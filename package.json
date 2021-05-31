@@ -42,7 +42,7 @@
     "string-similarity": "^4.0.4",
     "uuid": "^8.3.2",
     "vue": "^2.6.11",
-    "ws": "^7.4.3",
+    "ws": "^7.4.6",
     "xkeys": "^1.1.1"
   },
   "devDependencies": {
