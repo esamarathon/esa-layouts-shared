@@ -852,6 +852,10 @@ export default [
     code: 'es/ct',
   },
   {
+    name: 'Basque Country',
+    code: 'es/pv',
+  },
+  {
     name: 'Sri Lanka',
     code: 'lk',
   },
