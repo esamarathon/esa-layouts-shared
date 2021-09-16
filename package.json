@@ -37,7 +37,7 @@
     "amqplib": "^0.7.0",
     "clone": "^2.1.2",
     "node-fetch": "^2.6.1",
-    "obs-websocket-js": "git+https://git@github.com/zoton2/obs-websocket-js.git#e0a892917d23facd386fd901da812cb5384d6c20",
+    "obs-websocket-js": "4.0.3",
     "osc": "^2.4.1",
     "string-similarity": "^4.0.4",
     "uuid": "^8.3.2",
