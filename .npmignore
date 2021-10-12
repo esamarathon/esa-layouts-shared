@@ -1,2 +1,0 @@
-# This rule exists so that NPM v7 successfully clones even the ignored dist directories.
-!dist
