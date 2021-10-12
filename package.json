@@ -1,0 +1,21 @@
+{
+  "name": "@esamarathon/esa-layouts-shared",
+  "version": "1.0.0",
+  "private": true,
+  "homepage": "https://github.com/esamarathon/esa-layouts-shared#readme",
+  "bugs": {
+    "url": "https://github.com/esamarathon/esa-layouts-shared/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/esamarathon/esa-layouts-shared.git"
+  },
+  "license": "MIT",
+  "author": "zoton2",
+  "scripts": {
+    "schema-types": "nodecg schema-types -o types/schemas --no-config-schema"
+  },
+  "devDependencies": {
+    "nodecg-cli": "^8.0.0"
+  }
+}
