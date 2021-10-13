@@ -35,6 +35,8 @@
     "@types/node-fetch": "^2.5.12",
     "@types/string-similarity": "^4.0.0",
     "@types/uuid": "^8.3.1",
-    "nodecg-cli": "^8.0.0"
+    "nodecg-cli": "^8.0.0",
+    "vuedraggable": "^2.24.3",
+    "vuex-class-state2way": "^1.0.1"
   }
 }
