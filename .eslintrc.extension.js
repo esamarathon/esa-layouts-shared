@@ -56,7 +56,10 @@ module.exports = {
       // Sometimes eslint complains about this for types (usually when using namespaces).
       'import/prefer-default-export': 'off',
       // Types are only used for development (usually!) so dev dependencies are fine.
-      'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
+      'import/no-extraneous-dependencies': ['error', {
+        devDependencies: true,
+        packageDir: [path.join(__dirname, '.'), path.join(__dirname, '..')],
+      }],
     }
   }],
 };

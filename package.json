@@ -16,6 +16,7 @@
     "autofix:browser_shared": "cd browser_shared && node ../../node_modules/eslint/bin/eslint.js --fix --ext .ts,.vue .",
     "autofix:dashboard": "cd dashboard && node ../../node_modules/eslint/bin/eslint.js --fix --ext .ts,.vue .",
     "autofix:graphics": "cd graphics && node ../../node_modules/eslint/bin/eslint.js --fix --ext .ts,.vue .",
+    "autofix:types": "cd types && node ../../node_modules/eslint/bin/eslint.js --fix --ext .d.ts .",
     "schema-types": "nodecg schema-types -o types/schemas --no-config-schema"
   },
   "dependencies": {
