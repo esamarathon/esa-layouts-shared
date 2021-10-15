@@ -13,6 +13,9 @@
   "license": "MIT",
   "author": "zoton2",
   "scripts": {
+    "autofix:browser_shared": "cd browser_shared && node ../../node_modules/eslint/bin/eslint.js --fix --ext .ts,.vue .",
+    "autofix:dashboard": "cd dashboard && node ../../node_modules/eslint/bin/eslint.js --fix --ext .ts,.vue .",
+    "autofix:graphics": "cd graphics && node ../../node_modules/eslint/bin/eslint.js --fix --ext .ts,.vue .",
     "schema-types": "nodecg schema-types -o types/schemas --no-config-schema"
   },
   "dependencies": {
