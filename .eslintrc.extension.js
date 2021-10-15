@@ -23,7 +23,7 @@ module.exports = {
     'import/resolver': {
       typescript: {
         // This is needed to properly resolve paths.
-        // project: 'tsconfig.browser.json',
+        // project: 'tsconfig.extension.json',
       },
     },
     'import/extensions': ['.js', '.jsx', '.ts', '.tsx'],
