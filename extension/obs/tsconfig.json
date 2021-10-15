@@ -2,8 +2,7 @@
   "extends": "../../tsconfig.extension.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "dist",
-    "useUnknownInCatchVariables": false
+    "outDir": "dist"
   },
   "include": [
     "src/**/*.ts",
