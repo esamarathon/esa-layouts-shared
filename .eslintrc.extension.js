@@ -1,3 +1,5 @@
+const path = require('path');
+
 module.exports = {
   root: true,
   env: {
@@ -38,6 +40,11 @@ module.exports = {
       ts: 'never',
       tsx: 'never',
     }],
+
+    'import/no-extraneous-dependencies': ['error', {
+      packageDir: [path.join(__dirname, '.'), path.join(__dirname, '..')],
+    }],
+    'class-methods-use-this': 'off',
   },
 
   // Overrides for types.
