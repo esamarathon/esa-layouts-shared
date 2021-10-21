@@ -100,18 +100,16 @@ class X32 {
    * @param startValue Value to set (0.0 - 1.0).
    */
   setFader(name: string, value: number): void {
-    if (!this.config.enable) {
+    if (!this.config.enable || !this.conn) {
       throw new Error('No connection available');
     }
 
     this.nodecg.log.debug(`[X32] Attempting to set fader on ${name} to ${value}`);
-    if (this.conn) {
-      this.conn.send({
-        address: '/subscribe',
-        args: [{ type: 's', value: name }, { type: 'i', value: 0 }],
-      });
-      this.conn.send({ address: name, args: [{ type: 'f', value }] });
-    }
+    this.conn.send({
+      address: '/subscribe',
+      args: [{ type: 's', value: name }, { type: 'i', value: 0 }],
+    });
+    this.conn.send({ address: name, args: [{ type: 'f', value }] });
   }
 
   /**
@@ -122,7 +120,7 @@ class X32 {
    * @param length Milliseconds to spend doing fade.
    */
   fade(name: string, startValue: number, endValue: number, length: number): void {
-    if (!this.config.enable) {
+    if (!this.config.enable || !this.conn) {
       throw new Error('No connection available');
     }
 
@@ -139,12 +137,10 @@ class X32 {
     const stepCount = length / 100;
     const stepSize = (endValue - startValue) / stepCount;
     this.fadersExpected[name] = { value: endValue, increase, seenOnce: false };
-    if (this.conn) {
-      this.conn.send({
-        address: '/subscribe',
-        args: [{ type: 's', value: name }, { type: 'i', value: 0 }],
-      });
-    }
+    this.conn.send({
+      address: '/subscribe',
+      args: [{ type: 's', value: name }, { type: 'i', value: 0 }],
+    });
     this.fadersInterval[name] = setInterval(() => {
       if ((increase && currentValue >= endValue) || (!increase && currentValue <= endValue)) {
         clearInterval(this.fadersInterval[name]);
