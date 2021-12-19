@@ -23,12 +23,12 @@
     "amqp-connection-manager": "^3.7.0",
     "amqplib": "^0.8.0",
     "clone": "^2.1.2",
-    "node-fetch": "^2.6.5",
+    "node-fetch": "^3.1.0",
     "obs-websocket-js": "^4.0.3",
     "osc": "^2.4.2",
     "string-similarity": "^4.0.4",
     "uuid": "^8.3.2",
-    "ws": "^8.2.3",
+    "ws": "^8.3.0",
     "xkeys": "^1.1.1"
   },
   "devDependencies": {
@@ -36,9 +36,8 @@
     "@types/amqp-connection-manager": "^2.0.12",
     "@types/amqplib": "^0.8.2",
     "@types/clone": "^2.1.1",
-    "@types/node-fetch": "^2.5.12",
     "@types/string-similarity": "^4.0.0",
-    "@types/uuid": "^8.3.1",
+    "@types/uuid": "^8.3.3",
     "nodecg-cli": "^8.0.0",
     "vuedraggable": "^2.24.3",
     "vuex-class-state2way": "^1.0.1"
