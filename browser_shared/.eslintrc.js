@@ -1,6 +1,8 @@
+const path = require('path');
+
 module.exports = {
   extends: ['../.eslintrc.browser.js'],
   parserOptions: {
-    project: 'tsconfig.json',
+    project: path.join(__dirname, 'tsconfig.json'),
   },
 };
