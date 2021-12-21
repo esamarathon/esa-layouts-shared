@@ -31,11 +31,11 @@ module.exports = {
     'import/resolver': {
       typescript: {
         // This is needed to properly resolve paths.
-        // project: 'tsconfig.browser.json',
+        // project: 'tsconfig.browser.json', // Check if needed and how to fix if so!
       },
-      webpack: {
-        config: path.join(__dirname, 'webpack.config.js'),
-      },
+      /* webpack: {
+        config: path.join(__dirname, '../webpack.config.js'), // Check if needed and how to fix if so!
+      }, */
     },
     'import/extensions': ['.js', '.jsx', '.ts', '.tsx'],
   },
