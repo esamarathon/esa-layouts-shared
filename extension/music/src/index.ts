@@ -110,6 +110,7 @@ class Music {
       );
       this.musicData.value.connected = true;
       this.nodecg.log.info('[Music] Connection successful');
+      if (!resp.body) throw new Error('body was null');
       const readable = Readable.from(resp.body);
       readable.on('data', (chunk: Buffer) => {
         let msg: Foobar2000.UpdateMsg | undefined;
