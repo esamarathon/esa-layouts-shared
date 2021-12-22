@@ -71,6 +71,6 @@ A repository which houses several elements that are used by mutiple [NodeCG](htt
 - You will want to add this entry in your `.vscode/settings.json` file in the `eslint.workingDirectories` section:
   - ```
     "eslint.workingDirectories": [
-      { "pattern": "shared/*" }
+      { "pattern": "shared" }
     ]
     ```
