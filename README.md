@@ -9,7 +9,9 @@ A repository which houses several elements that are used by mutiple [NodeCG](htt
 - This repository is to be used as a submodule, directly in the root of the NodeCG bundle (usually in a directory named `shared`).
 - It requires the bundle to have some specific dependencies and structure; not going to note it all here because it's basically just the stuff from [zoton2/nodecg-vue-ts-template](https://github.com/zoton2/nodecg-vue-ts-template) which we tend to base bundles using.
 - The bundle should have a `postinstall` in the `package.json` file:
-  - `"postinstall": "cd shared && node postinstall.js"`
+  - ```
+    "postinstall": "cd shared && node postinstall.js"
+    ```
 - You may want to add a `path` to your `tsconfig.*.json` files for ease of development:
   - ```
     "paths": {
@@ -73,4 +75,11 @@ A repository which houses several elements that are used by mutiple [NodeCG](htt
     "eslint.workingDirectories": [
       { "pattern": "shared" }
     ]
+    ```
+- You will want to change the Webpack `resolve.alias.vue` config to make sure it resolves to the one in the bundle:
+  - ```
+    alias: {
+      // vue: 'vue/dist/vue.esm.js',
+      vue: path.resolve(__dirname, 'node_modules/vue/dist/vue.esm.js'),
+    },
     ```
