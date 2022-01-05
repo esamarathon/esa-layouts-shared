@@ -36,6 +36,7 @@
     "@types/amqp-connection-manager": "^2.0.12",
     "@types/amqplib": "^0.8.2",
     "@types/clone": "^2.1.1",
+    "@types/node-fetch": "^2.5.12",
     "@types/string-similarity": "^4.0.0",
     "@types/uuid": "^8.3.3",
     "nodecg-cli": "^8.0.0",
