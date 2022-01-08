@@ -82,7 +82,7 @@ class RabbitMQ {
     this.listenTopics = opts.listenTopics;
     this.useTestData = useTestData;
 
-    if (opts.config.enable) {
+    if (opts.config.enabled) {
       if (!useTestData) {
         nodecg.log.info('[RabbitMQ] Setting up connection');
         const conn = amqpConnectionManager.connect([this.url()], this.opts())
@@ -171,7 +171,7 @@ class RabbitMQ {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   send(key: string, data: { [k: string]: any }): void {
-    if (!this.config.enable) {
+    if (!this.config.enabled) {
       // RabbitMQ not enabled, don't even try to send.
       return;
     }
