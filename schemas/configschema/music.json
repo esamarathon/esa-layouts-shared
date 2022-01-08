@@ -3,7 +3,7 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
-    "enable": {
+    "enabled": {
       "type": "boolean",
       "default": true
     },
@@ -21,7 +21,7 @@
     }
   },
   "required": [
-    "enable",
+    "enabled",
     "address",
     "username",
     "password"
