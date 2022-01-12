@@ -20,6 +20,10 @@ A repository which houses several elements that are used by mutiple [NodeCG](htt
       ],
     }
     ```
+- To make sure the above part works, you will also want to add this line in your `extension/index.ts` file:
+  - ```
+    require('module-alias').addAlias('@shared', require('path').join(__dirname, '../shared'));
+    ```
 - You will want to add these paths to your `tsconfig.browser.json` in the `include` array:
   - ```
     "include": [
