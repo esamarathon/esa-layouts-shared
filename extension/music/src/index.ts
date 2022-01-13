@@ -8,7 +8,7 @@ import { MusicData } from '../../../types/schemas';
 
 /**
  * Calculates the absolute file path to one of our local replicant schemas.
- * @param schemaName the replicant/schema filename.
+ * @param schemaName The replicant/schema filename.
  */
 function buildSchemaPath(schemaName: string) {
   return path.resolve(__dirname, '../../../schemas', `${encodeURIComponent(schemaName)}.json`);
@@ -125,9 +125,7 @@ class Music {
           return;
         }
         if (msg.player) {
-          if (this.positionInterval) {
-            clearInterval(this.positionInterval);
-          }
+          if (this.positionInterval) clearInterval(this.positionInterval);
           this.musicData.value.playing = msg.player.playbackState === 'playing';
           if (msg.player.playbackState !== 'stopped') {
             if (msg.player.activeItem.duration > 0) {
