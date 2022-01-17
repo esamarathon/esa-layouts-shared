@@ -103,16 +103,5 @@
   },
   "exclude": [
     "node_modules"
-  ],
-  /* Included so projects can reference each other without build issues. */
-  "references": [
-    { "path": "./extension/countdown" },
-    { "path": "./extension/mediabox" },
-    { "path": "./extension/music" },
-    { "path": "./extension/obs" },
-    { "path": "./extension/rabbitmq" },
-    { "path": "./extension/video-player" },
-    { "path": "./extension/x32" },
-    { "path": "./extension/xkeys-esa" }
-  ],
+  ]
 }
