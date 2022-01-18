@@ -8,7 +8,7 @@ interface VideoPlayerEvents {
   'playCommercial': (playlistItem: VideoPlaylist.PlaylistItem) => void;
   'videoStarted': (playlistItem: VideoPlaylist.PlaylistItem) => void;
   'videoEnded': (playlistItem: VideoPlaylist.PlaylistItem) => void;
-  'playlistEnded': () => void;
+  'playlistEnded': (early: boolean) => void;
 }
 
 class VideoPlayer extends TypedEmitter<VideoPlayerEvents> {
@@ -71,7 +71,7 @@ class VideoPlayer extends TypedEmitter<VideoPlayerEvents> {
       this.playing = false;
       this.index = -1;
       this.playlist.length = 0;
-      this.emit('playlistEnded');
+      this.emit('playlistEnded', false);
     }
   }
 
@@ -90,7 +90,7 @@ class VideoPlayer extends TypedEmitter<VideoPlayerEvents> {
           { sourceName: this.obsConfig.names.sources.videoPlayer },
         );
       } catch (err) { /* do nothing */ }
-      this.emit('playlistEnded');
+      this.emit('playlistEnded', true);
     }
   }
 
