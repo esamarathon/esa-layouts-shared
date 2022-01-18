@@ -83,7 +83,9 @@ class VideoPlayer extends TypedEmitter<VideoPlayerEvents> {
       this.playing = false;
       this.index = -1;
       this.playlist.length = 0;
-      await this.obs.conn.send('StopMedia', { sourceName: this.videoSourceName });
+      try {
+        await this.obs.conn.send('StopMedia', { sourceName: this.videoSourceName });
+      } catch (err) { /* do nothing */ }
       this.emit('playlistEnded');
     }
   }
