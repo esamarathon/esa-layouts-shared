@@ -13,7 +13,6 @@ interface VideoPlayerEvents {
 class VideoPlayer extends TypedEmitter<VideoPlayerEvents> {
   private obsConfig: OBSTypes.Config;
   private obs: OBS;
-  private videoSourceName = 'Video Player Source'; // Move to config
   playlist: VideoPlaylist.PlaylistItem[] = [];
   playing = false;
   index = -1;
@@ -25,7 +24,8 @@ class VideoPlayer extends TypedEmitter<VideoPlayerEvents> {
 
     // Listens for when videos finish playing in OBS.
     obs.conn.on('MediaEnded', (data) => {
-      if (data.sourceName === this.videoSourceName && this.playing && this.index >= 0) {
+      if (data.sourceName === this.obsConfig.names.sources.videoPlayer
+      && this.playing && this.index >= 0) {
         this.emit('videoEnded', this.playlist[this.index]);
       }
     });
@@ -84,7 +84,10 @@ class VideoPlayer extends TypedEmitter<VideoPlayerEvents> {
       this.index = -1;
       this.playlist.length = 0;
       try {
-        await this.obs.conn.send('StopMedia', { sourceName: this.videoSourceName });
+        await this.obs.conn.send(
+          'StopMedia',
+          { sourceName: this.obsConfig.names.sources.videoPlayer },
+        );
       } catch (err) { /* do nothing */ }
       this.emit('playlistEnded');
     }
@@ -99,12 +102,12 @@ class VideoPlayer extends TypedEmitter<VideoPlayerEvents> {
       throw new Error('no OBS connection available');
     }
     const source = await this.obs.conn.send('GetSourceSettings', {
-      sourceName: this.videoSourceName,
+      sourceName: this.obsConfig.names.sources.videoPlayer,
     });
     const location = `${cwd()}/assets/${video.namespace}/${video.category}/${video.base}`;
     if (source.sourceType === 'ffmpeg_source') {
       await this.obs.conn.send('SetSourceSettings', {
-        sourceName: this.videoSourceName,
+        sourceName: this.obsConfig.names.sources.videoPlayer,
         sourceSettings: {
           is_local_file: true,
           local_file: location,
@@ -114,7 +117,7 @@ class VideoPlayer extends TypedEmitter<VideoPlayerEvents> {
       });
     } else if (source.sourceType === 'vlc_source') {
       await this.obs.conn.send('SetSourceSettings', {
-        sourceName: this.videoSourceName,
+        sourceName: this.obsConfig.names.sources.videoPlayer,
         sourceSettings: {
           loop: false,
           shuffle: false,
