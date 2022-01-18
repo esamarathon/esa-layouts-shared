@@ -1,4 +1,5 @@
 import { getVideoDurationInSeconds } from 'get-video-duration';
+import { join } from 'path';
 import { cwd } from 'process';
 import { TypedEmitter } from 'tiny-typed-emitter';
 import { Asset, OBS as OBSTypes, VideoPlaylist } from '../../../types';
@@ -105,7 +106,7 @@ class VideoPlayer extends TypedEmitter<VideoPlayerEvents> {
     const source = await this.obs.conn.send('GetSourceSettings', {
       sourceName: this.obsConfig.names.sources.videoPlayer,
     });
-    const location = `${cwd()}/assets/${video.namespace}/${video.category}/${video.base}`;
+    const location = join(cwd(), `assets/${video.namespace}/${video.category}/${video.base}`);
     if (source.sourceType === 'ffmpeg_source') {
       await this.obs.conn.send('SetSourceSettings', {
         sourceName: this.obsConfig.names.sources.videoPlayer,
@@ -147,9 +148,10 @@ class VideoPlayer extends TypedEmitter<VideoPlayerEvents> {
       if (item.video) {
         let length = 0;
         try {
-          length = await getVideoDurationInSeconds(
-            `${cwd()}/assets/${item.video.namespace}/${item.video.category}/${item.video.base}`,
-          );
+          length = await getVideoDurationInSeconds(join(
+            cwd(),
+            `assets/${item.video.namespace}/${item.video.category}/${item.video.base}`,
+          ));
         } catch (err) { /* err */ }
 
         // If item has a commercial longer than the video, use that instead.
