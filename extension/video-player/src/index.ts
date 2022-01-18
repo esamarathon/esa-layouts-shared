@@ -75,6 +75,20 @@ class VideoPlayer extends TypedEmitter<VideoPlayerEvents> {
   }
 
   /**
+   * Used to end the playlist early; will stop the video if any, reset settings,
+   * and emit "playlistEnded".
+   */
+  async endPlaylistEarly(): Promise<void> {
+    if (this.playing && this.index >= 0) {
+      this.playing = false;
+      this.index = -1;
+      this.playlist.length = 0;
+      await this.obs.conn.send('StopMedia', { sourceName: this.videoSourceName });
+      this.emit('playlistEnded');
+    }
+  }
+
+  /**
    * Play the supplied asset via the OBS source.
    * @param video NodeCG asset of the video.
    */
