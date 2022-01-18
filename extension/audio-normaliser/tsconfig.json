@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.extension.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "lib": [
+      "ES2021"
+    ]
+  },
+  "include": [
+    "src/**/*.ts",
+    "../../types/**/*.d.ts"
+  ]
+}
