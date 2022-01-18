@@ -1,47 +1,31 @@
-import type { NodeCG } from 'nodecg/types/server';
 import { cwd } from 'process';
 import { TypedEmitter } from 'tiny-typed-emitter';
-import { Asset, OBS as OBSTypes } from '../../../types';
+import { Asset, OBS as OBSTypes, VideoPlaylist } from '../../../types';
 import OBS from '../../obs';
 
-// Should be moved to types file!
-interface PlaylistItem {
-  id: string;
-  video?: Asset;
-  commercial?: number;
-}
-
 interface VideoPlayerEvents {
-  'playCommercial': (playlistItem: PlaylistItem) => void;
-  'videoStarted': (playlistItem: PlaylistItem) => void;
-  'videoEnded': (playlistItem: PlaylistItem) => void;
+  'playCommercial': (playlistItem: VideoPlaylist.PlaylistItem) => void;
+  'videoStarted': (playlistItem: VideoPlaylist.PlaylistItem) => void;
+  'videoEnded': (playlistItem: VideoPlaylist.PlaylistItem) => void;
   'playlistEnded': () => void;
 }
 
-/**
- * TODO:
- * - add try/catches
- * - stop if no connection to OBS or OBS config disabled
- */
-
 class VideoPlayer extends TypedEmitter<VideoPlayerEvents> {
-  private nodecg: NodeCG;
-  private obsCofig: OBSTypes.Config;
+  private obsConfig: OBSTypes.Config;
   private obs: OBS;
-  private videoSourceName = 'Video Player Source';
-  playlist: PlaylistItem[] = [];
+  private videoSourceName = 'Video Player Source'; // Move to config
+  playlist: VideoPlaylist.PlaylistItem[] = [];
   playing = false;
   index = -1;
 
-  constructor(nodecg: NodeCG, obsCofig: OBSTypes.Config, obs: OBS) {
+  constructor(obsConfig: OBSTypes.Config, obs: OBS) {
     super();
-    this.nodecg = nodecg;
-    this.obsCofig = obsCofig;
+    this.obsConfig = obsConfig;
     this.obs = obs;
 
     // Listens for when videos finish playing in OBS.
     obs.conn.on('MediaEnded', (data) => {
-      if (data.sourceName === this.videoSourceName) {
+      if (data.sourceName === this.videoSourceName && this.playing && this.index >= 0) {
         this.emit('videoEnded', this.playlist[this.index]);
       }
     });
@@ -50,29 +34,36 @@ class VideoPlayer extends TypedEmitter<VideoPlayerEvents> {
   /**
    * Validate and load in a supplied playlist.
    */
-  loadPlaylist(playlist: PlaylistItem[]): void {
+  loadPlaylist(playlist: VideoPlaylist.PlaylistItem[]): void {
+    if (!this.obs.connected || !this.obsConfig.enabled) {
+      throw new Error('no OBS connection available');
+    }
     if (this.playing) throw new Error('another playlist currently playing');
     if (!playlist.length) throw new Error('playlist must have at least 1 video');
     const invalidItems = playlist.filter((i) => !i.commercial && !i.video);
     if (invalidItems.length) {
-      throw new Error('all playlist items must have either video orcommercial');
+      throw new Error('all playlist items must have either video or commercial');
     }
     this.playlist = playlist;
   }
 
   /**
    * Attempt to play the next playlist item.
+   * If at the end, triggers the end of the playlist.
    */
   async playNext(): Promise<void> {
+    if (!this.obs.connected || !this.obsConfig.enabled) {
+      throw new Error('no OBS connection available');
+    }
     if (this.playlist.length - 1 > this.index) {
       this.playing = true;
       this.index += 1;
       const item = this.playlist[this.index];
+      this.emit('videoStarted', item); // Emitted even if no video is added.
       if (item.commercial) this.emit('playCommercial', item);
-      if (item.video) {
-        await this.playVideo(item.video);
-        this.emit('videoStarted', item);
-      } else {
+      if (item.video) await this.playVideo(item.video);
+      else {
+        await new Promise((res) => { setTimeout(res, 2500); });
         this.emit('videoEnded', item); // "Pretend" video ended in this case.
       }
     } else {
@@ -88,6 +79,9 @@ class VideoPlayer extends TypedEmitter<VideoPlayerEvents> {
    * @param video NodeCG asset of the video.
    */
   async playVideo(video: Asset): Promise<void> {
+    if (!this.obs.connected || !this.obsConfig.enabled) {
+      throw new Error('no OBS connection available');
+    }
     const source = await this.obs.conn.send('GetSourceSettings', {
       sourceName: this.videoSourceName,
     });
@@ -119,7 +113,7 @@ class VideoPlayer extends TypedEmitter<VideoPlayerEvents> {
         },
       });
     } else {
-      this.nodecg.log.error('[Video Player] No video player source found in OBS to trigger!');
+      throw new Error('No video player source found in OBS to trigger');
     }
   }
 }
