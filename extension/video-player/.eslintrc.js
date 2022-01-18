@@ -5,4 +5,8 @@ module.exports = {
   parserOptions: {
     project: path.join(__dirname, 'tsconfig.json'),
   },
+  rules: {
+    'no-restricted-syntax': 'off',
+    'no-await-in-loop': 'off',
+  },
 };

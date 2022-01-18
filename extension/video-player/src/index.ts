@@ -1,3 +1,4 @@
+import { getVideoDurationInSeconds } from 'get-video-duration';
 import { cwd } from 'process';
 import { TypedEmitter } from 'tiny-typed-emitter';
 import { Asset, OBS as OBSTypes, VideoPlaylist } from '../../../types';
@@ -134,6 +135,31 @@ class VideoPlayer extends TypedEmitter<VideoPlayerEvents> {
     } else {
       throw new Error('No video player source found in OBS to trigger');
     }
+  }
+
+  /**
+   * Calculates how long the playlist will last (estimated).
+   * @returns Length in seconds.
+   */
+  async calculatePlaylistLength(): Promise<number> {
+    let totalLength = 0;
+    for (const item of this.playlist) {
+      if (item.video) {
+        let length = 0;
+        try {
+          length = await getVideoDurationInSeconds(
+            `${cwd()}/assets/${item.video.namespace}/${item.video.category}/${item.video.base}`,
+          );
+        } catch (err) { /* err */ }
+
+        // If item has a commercial longer than the video, use that instead.
+        if (item.commercial && item.commercial > length) totalLength += item.commercial;
+        else totalLength += length;
+      } else if (item.commercial) {
+        totalLength += item.commercial;
+      }
+    }
+    return totalLength;
   }
 }
 
