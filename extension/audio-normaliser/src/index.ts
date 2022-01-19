@@ -1,8 +1,10 @@
 import { exec as execCb } from 'child_process';
-import { ensureDir, unlink } from 'fs-extra';
+import clone from 'clone';
+import { copyFile, ensureDir } from 'fs-extra';
+import { unlink } from 'fs/promises';
 import { differenceBy } from 'lodash';
 import type { NodeCG, Replicant } from 'nodecg/types/server';
-import { dirname, join } from 'path';
+import { join } from 'path';
 import { cwd } from 'process';
 import { Asset } from 'types';
 import { promisify } from 'util';
@@ -18,7 +20,7 @@ class AudioNormaliser {
   constructor(nodecg: NodeCG, assetName = 'videos') {
     this.nodecg = nodecg;
     this.assets = nodecg.Replicant(`assets:${assetName}`);
-    this.assetsNormalised = nodecg
+    this.assetsNormalised = nodecg // Stores assets already normalised for reference
       .Replicant(`assets:${assetName}-normalised`, { defaultValue: [] });
     this.setup();
   }
@@ -37,6 +39,18 @@ class AudioNormaliser {
       return;
     }
 
+    // Used if no files are found in the assets folder on start up, which doesn't trigger
+    // the listener below correctly.
+    const noFilesTO = setTimeout(() => {
+      // Removed assets need removing from "already normalised" array.
+      const removed = differenceBy(this.assetsNormalised.value, this.assets.value, 'sum');
+      for (const asset of removed) {
+        const index = this.assetsNormalised.value.findIndex((a) => a.sum === asset.sum);
+        if (index >= 0) this.assetsNormalised.value.splice(index, 1);
+      }
+    }, 10 * 1000);
+
+    // Stores names of files being processed, for easy reference between parts of code.
     const processing: string[] = [];
     this.assets.on('change', async (newVal, oldVal) => {
       if (!oldVal && !newVal.length) return; // Happens on start up, completely empty
@@ -44,66 +58,68 @@ class AudioNormaliser {
       && !differenceBy(oldVal, newVal, 'sum').length) {
         return; // Sometimes this listener is triggered with no actual changes
       }
+      clearTimeout(noFilesTO);
       const added = differenceBy(newVal, this.assetsNormalised.value, 'sum');
       const removed = differenceBy(this.assetsNormalised.value, newVal, 'sum');
 
-      // Process and copy over newly added assets.
+      // Runs through any newly added assets that are currently processing,
+      // which should mean this is the fully processed file and we were successful.
       for (const asset of added) {
-        if (!this.assetsNormalised.value.find((a) => a.sum === asset.sum)
-        && !processing.includes(asset.sum)) {
-          processing.push(asset.sum);
-          const originalLocation = this.getAssetLocation(asset);
+        if (processing.includes(asset.name)
+        && !this.assetsNormalised.value.find((a) => a.sum === asset.sum)) {
+          this.assetsNormalised.value.push(clone(asset));
+          processing.splice(processing.indexOf(asset.name), 1);
+        }
+      }
+
+      // Removed assets need removing from "already normalised" array.
+      for (const asset of removed) {
+        const index = this.assetsNormalised.value.findIndex((a) => a.sum === asset.sum);
+        if (index >= 0) this.assetsNormalised.value.splice(index, 1);
+      }
+
+      // Runs through any newly added assets that haven't been seen before at all.
+      // This copies them to a temp folder, then normalises them back in the original location.
+      for (const [i, asset] of added.entries()) {
+        if (!processing.includes(asset.name)
+        && !this.assetsNormalised.value.find((a) => a.sum === asset.sum)) {
+          const original = this.getAssetLocation(asset);
+          processing.push(asset.name);
+          // Small wait before processing first element only.
+          if (i === 0) await new Promise((res) => { setTimeout(res, 2000); });
           try {
-            const copyLocation = this.getAssetLocation(asset, true);
-            await ensureDir(dirname(copyLocation));
+            const tempDir = join(this.getAssetDir(asset), 'temp');
+            const tempCopy = join(tempDir, asset.name);
+            await ensureDir(tempDir); // Ensures temp directory exists
+            await copyFile(original, tempCopy); // Copy to temp
+            await unlink(original); // Delete original
 
             // Executes the ffmpeg-normalize command.
             const cmd = [
               'ffmpeg-normalize',
-              `"${originalLocation}"`,
+              `"${tempCopy}"`,
               '-c:a aac',
-              `-o "${copyLocation}"`,
+              `-o "${this.getAssetLocation(asset, true)}"`, // Also makes ext lowercase
             ].join(' ');
             await exec(cmd);
 
-            const newBase = `${asset.name}${asset.ext.toLowerCase()}`;
-            const newCategory = `${asset.category}-normalised`;
-            this.assetsNormalised.value.push({
-              ...asset,
-              base: newBase,
-              category: newCategory,
-              ext: asset.ext.toLowerCase(),
-              url: `/assets/${asset.namespace}/${newCategory}/${newBase}`,
-            });
+            await unlink(tempCopy); // Delete temp
           } catch (err) {
-            this.nodecg.log.warn('[Audio Normaliser] Error processing %s', originalLocation);
-            this.nodecg.log.warn('[Audio Normaliser] Error processing %s:', originalLocation, err);
+            this.nodecg.log.warn('[Audio Normaliser] Error processing %s', original);
+            this.nodecg.log.warn('[Audio Normaliser] Error processing %s:', original, err);
           }
-          processing.splice(processing.indexOf(asset.sum), 1);
-        }
-      }
-
-      // Removed assets need deleting.
-      for (const asset of removed) {
-        const path = this.getAssetLocation(asset, true);
-        try {
-          await unlink(path);
-          const index = this.assetsNormalised.value.findIndex((a) => a.sum === asset.sum);
-          if (index >= 0) this.assetsNormalised.value.splice(index, 1);
-        } catch (err) {
-          this.nodecg.log.warn('[Audio Normaliser] Error deleting %s', path);
-          this.nodecg.log.warn('[Audio Normaliser] Error deleting %s:', path, err);
         }
       }
     });
   }
 
-  private getAssetLocation(asset: Asset, normalised = false) {
-    const category = normalised && !asset.category.endsWith('-normalised')
-      ? `${asset.category}-normalised`
-      : asset.category;
-    const ext = normalised ? asset.ext.toLowerCase() : asset.ext;
-    return join(cwd(), `assets/${asset.namespace}/${category}/${asset.name}${ext}`);
+  private getAssetDir(asset: Asset): string {
+    return join(cwd(), `assets/${asset.namespace}/${asset.category}`);
+  }
+
+  private getAssetLocation(asset: Asset, lowercaseExt = false): string {
+    const ext = lowercaseExt ? asset.ext.toLowerCase() : asset.ext;
+    return join(cwd(), `assets/${asset.namespace}/${asset.category}/${asset.name}${ext}`);
   }
 }
 
