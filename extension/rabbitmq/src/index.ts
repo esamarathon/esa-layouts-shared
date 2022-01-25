@@ -36,8 +36,8 @@ function generateUserTagMsg(tag: number, id: string): FlagCarrier.TagScanned {
       id,
       group: 'stream1',
       time: {
-        iso: 'TIMESTAMP_STR',
-        unix: 23,
+        iso: (new Date()).toISOString(),
+        unix: Date.now() / 1000,
       },
       uid: uuid(),
     },
