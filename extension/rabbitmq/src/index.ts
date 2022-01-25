@@ -1,4 +1,4 @@
-import type { FlagCarrier, OmnibarModeration, Tracker } from '@esamarathon/mq-events/types';
+import type { BigButton, FlagCarrier, OmnibarModeration, Tracker } from '@esamarathon/mq-events/types';
 import type { ChannelWrapper } from 'amqp-connection-manager';
 import amqpConnectionManager from 'amqp-connection-manager';
 import type { ConfirmChannel, Message } from 'amqplib';
@@ -71,11 +71,25 @@ function generateUserTagMsg(tag: number, id: string): FlagCarrier.TagScanned {
     },
   };
 }
+const buttonMsgCount: { [k: string]: number } = {};
+function generateBigbuttonPressMsg(id: number): BigButton.ButtonPress {
+  if (!buttonMsgCount[id]) buttonMsgCount[id] = 1;
+  else buttonMsgCount[id] += 1;
+  return {
+    button_id: id,
+    button_message_count: buttonMsgCount[id],
+    time: {
+      iso: (new Date()).toISOString(),
+      unix: Date.now() / 1000,
+    },
+  };
+}
 const testData: {
   donationFullyProcessed: Tracker.DonationFullyProcessed;
   newScreenedSub: OmnibarModeration.NewScreenedSub;
   newScreenedCheer: OmnibarModeration.NewScreenedCheer;
   bigbuttonTagScanned: FlagCarrier.TagScanned;
+  bigbuttonPressed: BigButton.ButtonPress;
 
 } = {
   donationFullyProcessed: generateDonationMsg(),
@@ -98,6 +112,7 @@ const testData: {
     },
   },
   bigbuttonTagScanned: generateUserTagMsg(1, '1'),
+  bigbuttonPressed: generateBigbuttonPressMsg(1),
 };
 
 class RabbitMQ {
@@ -153,7 +168,7 @@ class RabbitMQ {
           'testRabbitMQ',
           ({ msgType, data }: {
             msgType: 'donationFullyProcessed' | 'newScreenedSub'
-            | 'newScreenedCheer' | 'bigbuttonTagScanned',
+            | 'newScreenedCheer' | 'bigbuttonTagScanned' | 'bigbuttonPressed',
             data?: { [k: string]: unknown },
           }) => {
             if (msgType === 'donationFullyProcessed') {
@@ -163,6 +178,8 @@ class RabbitMQ {
                 (data?.tag || 1) as number,
                 (data?.id || '1') as string,
               );
+            } else if (msgType === 'bigbuttonPressed') {
+              testData.bigbuttonPressed = generateBigbuttonPressMsg((data?.id || 1) as number);
             }
             nodecg.log.debug(
               '[RabbitMQ] Sending test message out for topic %s: %s',
