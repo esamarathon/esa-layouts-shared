@@ -187,6 +187,8 @@ class RabbitMQ {
           }).on('error', (err) => {
             nodecg.log.warn('[RabbitMQ] Server channel error');
             nodecg.log.debug('[RabbitMQ] Server channel error:', err);
+          }).on('close', () => {
+            nodecg.log.warn('[RabbitMQ] Server channel closed');
           });
         } catch (err) {
           nodecg.log.warn('[RabbitMQ] Some caught error, YOU PROBABLY NEED TO RESTART NODECG!');
