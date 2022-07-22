@@ -24,7 +24,7 @@
     "amqplib": "^0.10.0",
     "clone": "^2.1.2",
     "fs-extra": "^10.1.0",
-    "get-video-duration": "3.1.0",
+    "get-video-duration": "3.0.2",
     "lodash": "^4.17.21",
     "node-fetch": "^2.6.7",
     "obs-websocket-js": "^4.0.3",
