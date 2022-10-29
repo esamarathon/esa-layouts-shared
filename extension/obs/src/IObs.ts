@@ -15,8 +15,8 @@ export interface IObsCrop {
 }
 
 // TODO: EventEmitter3? Allows for better typing
-// TODO: Unify events emitted by class
-export interface IObs extends EventEmitter {
+// TODO: Unify v4 events emitted by class
+export interface IObs {
   on(event: 'streamingStatusChanged', listener: (streaming: boolean, old?: boolean) => void): this;
   on(event: 'connectionStatusChanged', listener: (connected: boolean) => void): this;
   on(event: 'currentSceneChanged', listener: (current?: string, last?: string) => void): this;

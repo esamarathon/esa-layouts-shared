@@ -3,7 +3,7 @@ import { join } from 'path';
 import { cwd } from 'process';
 import { TypedEmitter } from 'tiny-typed-emitter';
 import { Asset, OBS as OBSTypes, VideoPlaylist } from '../../../types';
-import OBS from '../../obs';
+import { ObsV4 as OBS } from '../../obs';
 
 interface VideoPlayerEvents {
   'playCommercial': (playlistItem: VideoPlaylist.PlaylistItem) => void;

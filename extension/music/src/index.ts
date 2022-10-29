@@ -5,7 +5,7 @@ import path from 'path';
 import { Readable } from 'stream';
 import { Foobar2000, Music as MusicTypes } from '../../../types';
 import { MusicData } from '../../../types/schemas';
-import OBS from '../../obs';
+import { ObsV4 as OBS } from '../../obs';
 
 /**
  * Calculates the absolute file path to one of our local replicant schemas.
