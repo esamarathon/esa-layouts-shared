@@ -21,8 +21,8 @@
   },
   "dependencies": {
     "@duncte123/obs-websocket-js": "^4.0.6",
-    "amqp-connection-manager": "^4.1.6",
-    "amqplib": "^0.10.2",
+    "amqp-connection-manager": "^4.1.9",
+    "amqplib": "^0.10.3",
     "clone": "^2.1.2",
     "fs-extra": "^10.1.0",
     "get-video-duration": "3.0.2",
