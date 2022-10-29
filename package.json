@@ -20,6 +20,7 @@
     "schema-types": "nodecg schema-types -o types/schemas --no-config-schema"
   },
   "dependencies": {
+    "@duncte123/obs-websocket-js": "^4.0.6",
     "amqp-connection-manager": "^4.1.6",
     "amqplib": "^0.10.2",
     "clone": "^2.1.2",
@@ -27,7 +28,7 @@
     "get-video-duration": "3.0.2",
     "lodash": "^4.17.21",
     "node-fetch": "^2.6.7",
-    "obs-websocket-js": "^4.0.3",
+    "obs-websocket-js": "^5.0.2",
     "osc": "^2.4.3",
     "string-similarity": "^4.0.4",
     "tiny-typed-emitter": "^2.1.0",
