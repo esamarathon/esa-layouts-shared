@@ -22,6 +22,11 @@ export interface IObs {
   on(event: 'currentSceneChanged', listener: (current?: string, last?: string) => void): this;
   on(event: 'sceneListChanged', listener: (list: string[]) => void): this;
 
+  // Adapted obs events
+  on(event: 'TransitionBegin', listener: (data: object) => void): this;
+  on(event: 'TransitionEnd', listener: () => void): this;
+  on(event: 'MediaEnded', listener: (data: { sourceName: string }) => void): this;
+
   connect(): Promise<void>;
 
   /**
@@ -55,7 +60,7 @@ export interface IObs {
    * @param type Source type (has the be the internal name, not the display name).
    * @param settings Settings you wish to pass to OBS to change.
    */
-  setSourceSettings(name: string, type: string, settings: Record<string, unknown>): Promise<void>;
+  setSourceSettings(name: string, type: string | undefined, settings: Record<string, unknown>): Promise<void>;
 
   /**
    * Resets the scene item, then sets some properties if possible.
@@ -67,4 +72,8 @@ export interface IObs {
    */
   // eslint-disable-next-line max-len
   configureSceneItem(scene: string, item: string, area?: IObsArea, crop?: IObsCrop, visible?: boolean): Promise<void>;
+
+  takeScreenshot(sourceName: string): Promise<string>;
+
+  stopMedia(sourceName: string): Promise<void>;
 }

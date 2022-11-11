@@ -9,7 +9,7 @@ import { IObs } from './IObs';
 class OBS extends EventEmitter implements IObs {
   private nodecg: NodeCG;
   private config: OBSTypes.Config;
-  conn = new ObsWebsocketJs();
+  private conn = new ObsWebsocketJs();
   currentScene: string | undefined;
   sceneList: string [] = [];
   connected = false;
@@ -24,41 +24,7 @@ class OBS extends EventEmitter implements IObs {
       nodecg.log.info('[OBS] Setting up connection');
       this.connect();
 
-      this.conn.on('ConnectionClosed', () => {
-        this.connected = false;
-        this.emit('connectionStatusChanged', this.connected);
-        nodecg.log.warn('[OBS] Connection lost, retrying in 5 seconds');
-        setTimeout(() => this.connect(), 5000);
-      });
-
-      this.conn.on('SwitchScenes', (data) => {
-        const lastScene = this.currentScene;
-        if (lastScene !== data['scene-name']) {
-          this.currentScene = data['scene-name'];
-          this.emit('currentSceneChanged', this.currentScene, lastScene);
-        }
-      });
-
-      this.conn.on('ScenesChanged', async () => {
-        const scenes = await this.conn.send('GetSceneList');
-        this.sceneList = scenes.scenes.map((s) => s.name);
-        this.emit('sceneListChanged', this.sceneList);
-      });
-
-      this.conn.on('StreamStarted', () => {
-        this.streaming = true;
-        this.emit('streamingStatusChanged', this.streaming, !this.streaming);
-      });
-
-      this.conn.on('StreamStopped', () => {
-        this.streaming = false;
-        this.emit('streamingStatusChanged', this.streaming, !this.streaming);
-      });
-
-      this.conn.on('error', (err) => {
-        nodecg.log.warn('[OBS] Connection error');
-        nodecg.log.debug('[OBS] Connection error:', err);
-      });
+      this.registerObsEvents();
     }
   }
 
@@ -167,7 +133,7 @@ class OBS extends EventEmitter implements IObs {
     }
   }
   // eslint-disable-next-line max-len
-  async setSourceSettings(sourceName: string, sourceType: string, sourceSettings: Record<string, unknown>): Promise<void> {
+  async setSourceSettings(sourceName: string, sourceType: string | undefined, sourceSettings: Record<string, unknown>): Promise<void> {
     if (!this.config.enabled || !this.connected) {
       // OBS not enabled, don't even try to set.
       throw new Error('No connection available');
@@ -235,6 +201,72 @@ class OBS extends EventEmitter implements IObs {
     + `${err.error || err}`);
       throw err;
     }
+  }
+
+  async takeScreenshot(sourceName: string): Promise<string> {
+    const screenshot = await this.conn.send('TakeSourceScreenshot', {
+      sourceName,
+      embedPictureFormat: 'png',
+      height: 360,
+    });
+
+    return screenshot.img;
+  }
+
+  stopMedia(sourceName: string): Promise<void> {
+    return this.conn.send('StopMedia', {
+      sourceName,
+    });
+  }
+
+  private registerObsEvents() {
+    this.conn.on('ConnectionClosed', () => {
+      this.connected = false;
+      this.emit('connectionStatusChanged', this.connected);
+      this.nodecg.log.warn('[OBS] Connection lost, retrying in 5 seconds');
+      setTimeout(() => this.connect(), 5000);
+    });
+
+    this.conn.on('SwitchScenes', (data) => {
+      const lastScene = this.currentScene;
+      if (lastScene !== data['scene-name']) {
+        this.currentScene = data['scene-name'];
+        this.emit('currentSceneChanged', this.currentScene, lastScene);
+      }
+    });
+
+    this.conn.on('ScenesChanged', async () => {
+      const scenes = await this.conn.send('GetSceneList');
+      this.sceneList = scenes.scenes.map((s) => s.name);
+      this.emit('sceneListChanged', this.sceneList);
+    });
+
+    this.conn.on('StreamStarted', () => {
+      this.streaming = true;
+      this.emit('streamingStatusChanged', this.streaming, !this.streaming);
+    });
+
+    this.conn.on('StreamStopped', () => {
+      this.streaming = false;
+      this.emit('streamingStatusChanged', this.streaming, !this.streaming);
+    });
+
+    this.conn.on('error', (err) => {
+      this.nodecg.log.warn('[OBS] Connection error');
+      this.nodecg.log.debug('[OBS] Connection error:', err);
+    });
+
+    this.conn.on('TransitionBegin', (data) => {
+      this.emit('TransitionBegin', data);
+    });
+
+    this.conn.on('TransitionEnd', () => {
+      this.emit('TransitionEnd');
+    });
+
+    this.conn.on('MediaEnded', (data) => {
+      this.emit('MediaEnded', data);
+    });
   }
 }
 

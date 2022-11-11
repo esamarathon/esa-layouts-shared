@@ -39,4 +39,12 @@ export default class ObsV5 extends EventEmitter implements IObs {
   setSourceSettings(name: string, type: string, settings: Record<string, unknown>): Promise<void> {
     return Promise.resolve(undefined);
   }
+
+  takeScreenshot(sourceName: string): Promise<string> {
+    return Promise.resolve('');
+  }
+
+  stopMedia(sourceName: string): Promise<void> {
+    return Promise.resolve(undefined);
+  }
 }

@@ -25,7 +25,7 @@ class VideoPlayer extends TypedEmitter<VideoPlayerEvents> {
     this.obs = obs;
 
     // Listens for when videos finish playing in OBS.
-    obs.conn.on('MediaEnded', (data) => {
+    obs.on('MediaEnded', (data) => {
       if (data.sourceName === this.obsConfig.names.sources.videoPlayer
       && this.playing && this.index >= 0) {
         this.emit('videoEnded', this.playlist[this.index]);
@@ -86,10 +86,7 @@ class VideoPlayer extends TypedEmitter<VideoPlayerEvents> {
       this.index = -1;
       this.playlist.length = 0;
       try {
-        await this.obs.conn.send(
-          'StopMedia',
-          { sourceName: this.obsConfig.names.sources.videoPlayer },
-        );
+        await this.obs.stopMedia(this.obsConfig.names.sources.videoPlayer);
       } catch (err) { /* do nothing */ }
       this.emit('playlistEnded', true);
     }
@@ -103,24 +100,26 @@ class VideoPlayer extends TypedEmitter<VideoPlayerEvents> {
     if (!this.obs.connected || !this.obsConfig.enabled) {
       throw new Error('no OBS connection available');
     }
-    const source = await this.obs.conn.send('GetSourceSettings', {
-      sourceName: this.obsConfig.names.sources.videoPlayer,
-    });
+    const source = await this.obs.getSourceSettings(
+      this.obsConfig.names.sources.videoPlayer,
+    );
     const location = join(cwd(), `assets/${video.namespace}/${video.category}/${video.base}`);
     if (source.sourceType === 'ffmpeg_source') {
-      await this.obs.conn.send('SetSourceSettings', {
-        sourceName: this.obsConfig.names.sources.videoPlayer,
-        sourceSettings: {
+      this.obs.setSourceSettings(
+        this.obsConfig.names.sources.videoPlayer,
+        undefined,
+        {
           is_local_file: true,
           local_file: location,
           looping: false,
           restart_on_activate: false,
         },
-      });
+      );
     } else if (source.sourceType === 'vlc_source') {
-      await this.obs.conn.send('SetSourceSettings', {
-        sourceName: this.obsConfig.names.sources.videoPlayer,
-        sourceSettings: {
+      await this.obs.setSourceSettings(
+        this.obsConfig.names.sources.videoPlayer,
+        undefined,
+        {
           loop: false,
           shuffle: false,
           playback_behavior: 'always_play',
@@ -132,7 +131,7 @@ class VideoPlayer extends TypedEmitter<VideoPlayerEvents> {
             },
           ],
         },
-      });
+      );
     } else {
       throw new Error('No video player source found in OBS to trigger');
     }
