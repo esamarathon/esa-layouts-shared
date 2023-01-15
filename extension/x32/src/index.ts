@@ -1,10 +1,16 @@
 import type { NodeCG } from 'nodecg/types/server';
-import osc from 'osc';
+import osc, { OscMessage } from 'osc';
 import { TypedEmitter } from 'tiny-typed-emitter';
 import { X32 as X32Types } from '../../../types';
 
 interface X32Events {
-  'ready': () => void;
+  error: (error: Error) => void;
+  ready: () => void;
+  /**
+   * This event is only sent when "forwardMessages" is set to true in the constructor
+   * @param message OSC message received from the mixer
+   */
+  message: (message: OscMessage) => void;
 }
 
 class X32 extends TypedEmitter<X32Events> {
@@ -18,7 +24,7 @@ class X32 extends TypedEmitter<X32Events> {
   } } = {};
   private fadersInterval: { [k: string]: NodeJS.Timeout } = {};
 
-  constructor(nodecg: NodeCG, config: X32Types.Config) {
+  constructor(nodecg: NodeCG, config: X32Types.Config, forwardMessages = false) {
     super();
     this.nodecg = nodecg;
     this.config = config;
@@ -37,43 +43,22 @@ class X32 extends TypedEmitter<X32Events> {
       this.conn.on('error', (err) => {
         nodecg.log.warn('[X32] Error on connection');
         nodecg.log.debug('[X32] Error on connection:', err);
+        this.emit('error', err);
       });
 
-      this.conn.on('message', (message) => {
-        // I don't trust myself with all posibilities, so wrapping this up.
-        try {
-          if (message.address.endsWith('/fader')) {
-            const args = (message.args as { type: 'f', value: number }[])[0];
-            this.faders[message.address] = args.value;
-
-            // Check if we're done fading and clear intervals if needed.
-            if (this.fadersExpected[message.address]) {
-              const exp = this.fadersExpected[message.address];
-
-              // Sometimes we receive a delayed message, so we wait until
-              // we've at least seen 1 value in the correct range.
-              if ((exp.increase && exp.value > args.value)
-              || (!exp.increase && exp.value < args.value)) {
-                exp.seenOnce = true;
-              }
-              if (exp.seenOnce && ((exp.increase && exp.value <= args.value)
-              || (!exp.increase && exp.value >= args.value))) {
-                if (this.conn) {
-                  this.conn.send({
-                    address: message.address,
-                    args: [{ type: 'f', value: exp.value }],
-                  });
-                }
-                clearInterval(this.fadersInterval[message.address]);
-                delete this.fadersExpected[message.address];
-              }
-            }
-          }
-        } catch (err) {
-          nodecg.log.warn('[X32] Error parsing message');
-          nodecg.log.debug('[X32] Error parsing message:', err);
-        }
-      });
+      // Because the mixer sends a lot of messages to us,
+      //  we only check if we need to forward the messages once.
+      // For performance sake we only register one message listener
+      if (forwardMessages) {
+        this.conn.on('message', (message) => {
+          this.handleFaderEvent(message);
+          this.emit('message', message);
+        });
+      } else {
+        this.conn.on('message', (message) => {
+          this.handleFaderEvent(message);
+        });
+      }
 
       this.conn.on('close', () => {
         nodecg.log.info('[X32] Connection closed');
@@ -165,6 +150,42 @@ class X32 extends TypedEmitter<X32Events> {
         currentValue = endValue;
       }
     }, 100);
+  }
+
+  private handleFaderEvent(message: OscMessage): void {
+    // I don't trust myself with all posibilities, so wrapping this up.
+    try {
+      if (message.address.endsWith('/fader')) {
+        const args = (message.args as { type: 'f', value: number }[])[0];
+        this.faders[message.address] = args.value;
+
+        // Check if we're done fading and clear intervals if needed.
+        if (this.fadersExpected[message.address]) {
+          const exp = this.fadersExpected[message.address];
+
+          // Sometimes we receive a delayed message, so we wait until
+          // we've at least seen 1 value in the correct range.
+          if ((exp.increase && exp.value > args.value)
+            || (!exp.increase && exp.value < args.value)) {
+            exp.seenOnce = true;
+          }
+          if (exp.seenOnce && ((exp.increase && exp.value <= args.value)
+            || (!exp.increase && exp.value >= args.value))) {
+            if (this.conn) {
+              this.conn.send({
+                address: message.address,
+                args: [{ type: 'f', value: exp.value }],
+              });
+            }
+            clearInterval(this.fadersInterval[message.address]);
+            delete this.fadersExpected[message.address];
+          }
+        }
+      }
+    } catch (err) {
+      this.nodecg.log.warn('[X32] Error parsing message');
+      this.nodecg.log.debug('[X32] Error parsing message:', err);
+    }
   }
 }
 
