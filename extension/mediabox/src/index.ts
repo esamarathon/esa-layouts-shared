@@ -1,8 +1,8 @@
+import type NodeCGTypes from '@alvancamp/test-nodecg-types';
 import clone from 'clone';
-import type { NodeCG, Replicant } from 'nodecg/types/server';
 import path from 'path';
 import { v4 as uuid } from 'uuid';
-import type { Asset, MediaBox as MediaBoxType, RabbitMQ, Tracker } from '../../../types';
+import type { MediaBox as MediaBoxType, RabbitMQ, Tracker } from '../../../types';
 import type { MediaBox as MediaBoxRep, Prizes } from '../../../types/schemas';
 
 /**
@@ -14,19 +14,24 @@ function buildSchemaPath(schemaName: string) {
 }
 
 class MediaBox {
-  private nodecg: NodeCG;
-  mediaBox: Replicant<MediaBoxRep>;
-  prizes: Replicant<Prizes>;
-  assetsMediaBoxImages: Replicant<Asset[]>;
+  private nodecg: NodeCGTypes.ServerAPI;
+  mediaBox: NodeCGTypes.ServerReplicantWithSchemaDefault<MediaBoxRep>;
+  prizes: NodeCGTypes.ServerReplicantWithSchemaDefault<Prizes>;
+  assetsMediaBoxImages: NodeCGTypes.ServerReplicantWithSchemaDefault<NodeCGTypes.AssetFile[]>;
 
-  constructor(nodecg: NodeCG, evt: RabbitMQ.Events) {
+  constructor(nodecg: NodeCGTypes.ServerAPI, evt: RabbitMQ.Events) {
     this.nodecg = nodecg;
-    this.mediaBox = nodecg.Replicant('mediaBox', { schemaPath: buildSchemaPath('mediaBox') });
-    this.prizes = nodecg.Replicant('prizes', {
+    this.mediaBox = nodecg.Replicant<MediaBoxRep>(
+      'mediaBox',
+      { schemaPath: buildSchemaPath('mediaBox') },
+    ) as unknown as NodeCGTypes.ServerReplicantWithSchemaDefault<MediaBoxRep>;
+    this.prizes = nodecg.Replicant<Prizes>('prizes', {
       schemaPath: buildSchemaPath('prizes'),
       persistent: false,
-    });
-    this.assetsMediaBoxImages = nodecg.Replicant('assets:media-box-images');
+    }) as unknown as NodeCGTypes.ServerReplicantWithSchemaDefault<Prizes>;
+    this.assetsMediaBoxImages = nodecg.Replicant<NodeCGTypes.AssetFile[]>(
+      'assets:media-box-images',
+    ) as unknown as NodeCGTypes.ServerReplicantWithSchemaDefault<NodeCGTypes.AssetFile[]>;
 
     // Manages received donations/subscriptions/cheers.
     evt.on('donationFullyProcessed', (data) => {

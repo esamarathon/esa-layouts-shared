@@ -57,15 +57,16 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator';
+import type NodeCGTypes from '@alvancamp/test-nodecg-types';
+import clone from 'clone';
+import { Component, Vue } from 'vue-property-decorator';
+import Draggable from 'vuedraggable';
 import { State } from 'vuex-class';
 import { State2Way } from 'vuex-class-state2way';
-import Draggable from 'vuedraggable';
-import clone from 'clone';
-import { Prizes, MediaBox as MediaBoxRep } from '../../../types/schemas';
-import { Asset, MediaBox } from '../../../types';
-import MediaCard from './MediaCard.vue';
+import { MediaBox } from '../../../types';
+import { MediaBox as MediaBoxRep, Prizes } from '../../../types/schemas';
 import ApplicableIcon from './ApplicableIcon.vue';
+import MediaCard from './MediaCard.vue';
 import { getMediaDetails, isPrizeApplicable } from './shared';
 
 @Component({
@@ -76,7 +77,7 @@ import { getMediaDetails, isPrizeApplicable } from './shared';
   },
 })
 export default class extends Vue {
-  @State images!: Asset[];
+  @State images!: NodeCGTypes.AssetFile[];
   @State prizes!: Prizes;
   @State settings!: MediaBoxRep;
   @State2Way('updateNewRotation', 'newRotation') newRotation!: MediaBox.RotationElem[];

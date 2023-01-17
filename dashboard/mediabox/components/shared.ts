@@ -1,5 +1,6 @@
+import type NodeCGTypes from '@alvancamp/test-nodecg-types';
 import { v4 as uuid } from 'uuid';
-import { Asset, MediaBox, Tracker } from '../../../types';
+import { MediaBox, Tracker } from '../../../types';
 import { store } from '../store';
 
 /**
@@ -15,7 +16,7 @@ export function isAlertType(type: MediaBox.Types): boolean {
  * @param media Media from rotation you wish to query information on.
  */
 export function getMediaDetails(media: MediaBox.RotationElem): { name?: string } {
-  let details: Asset | Tracker.FormattedPrize | undefined;
+  let details: NodeCGTypes.AssetFile | Tracker.FormattedPrize | undefined;
   if (media.type === 'prize_generic') {
     return {
       name: 'Generic Prize Slide',
