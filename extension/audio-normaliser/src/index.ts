@@ -118,14 +118,12 @@ class AudioNormaliser {
   }
 
   private getAssetDir(asset: NodeCGTypes.AssetFile): string {
-    // TODO: Wait for fix in NodeCG types that adds `category` to the AssetFile type.
-    return join(cwd(), `assets/${asset.namespace}/${(asset as any).category}`);
+    return join(cwd(), `assets/${asset.namespace}/${asset.category}`);
   }
 
   private getAssetLocation(asset: NodeCGTypes.AssetFile, lowercaseExt = false): string {
     const ext = lowercaseExt ? asset.ext.toLowerCase() : asset.ext;
-    // TODO: Wait for fix in NodeCG types that adds `category` to the AssetFile type.
-    return join(cwd(), `assets/${asset.namespace}/${(asset as any).category}/${asset.name}${ext}`);
+    return join(cwd(), `assets/${asset.namespace}/${asset.category}/${asset.name}${ext}`);
   }
 }
 

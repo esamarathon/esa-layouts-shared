@@ -107,11 +107,7 @@ class VideoPlayer extends TypedEmitter<VideoPlayerEvents> {
     const source = await this.obs.conn.send('GetSourceSettings', {
       sourceName: this.obsConfig.names.sources.videoPlayer,
     });
-    const location = join(
-      cwd(),
-      // TODO: Wait for fix in NodeCG types that adds `category` to the AssetFile type.
-      `assets/${video.namespace}/${(video as any).category}/${video.base}`,
-    );
+    const location = join(cwd(), `assets/${video.namespace}/${video.category}/${video.base}`);
     if (source.sourceType === 'ffmpeg_source') {
       await this.obs.conn.send('SetSourceSettings', {
         sourceName: this.obsConfig.names.sources.videoPlayer,
