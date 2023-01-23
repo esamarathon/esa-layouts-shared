@@ -35,7 +35,7 @@
     "xkeys": "^2.4.0"
   },
   "devDependencies": {
-    "@alvancamp/test-nodecg-types": "^1.9.28",
+    "@alvancamp/test-nodecg-types": "^1.9.30",
     "@esamarathon/mq-events": "^1.0.1",
     "@types/amqp-connection-manager": "^2.0.12",
     "@types/amqplib": "^0.10.1",
@@ -44,7 +44,7 @@
     "@types/node-fetch": "^2.6.2",
     "@types/string-similarity": "^4.0.0",
     "@types/uuid": "^9.0.0",
-    "nodecg-cli": "^8.5.1",
+    "nodecg-cli": "^8.6.0",
     "vuedraggable": "^2.24.3",
     "vuex-class-state2way": "^1.0.1"
   }
