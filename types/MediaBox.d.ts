@@ -15,6 +15,7 @@ export namespace MediaBox {
     id: string;
     mediaUUID: string;
     seconds: number;
+    showOnIntermission: boolean;
   }
 
   interface AlertElem {

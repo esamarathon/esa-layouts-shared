@@ -15,7 +15,9 @@ export function isAlertType(type: MediaBox.Types): boolean {
  * Returns details about a piece of media from rotation if found.
  * @param media Media from rotation you wish to query information on.
  */
-export function getMediaDetails(media: MediaBox.RotationElem): { name?: string } {
+export function getMediaDetails(
+  media: MediaBox.RotationElem | NonNullable<MediaBox.ActiveElem>,
+): { name?: string } {
   let details: NodeCGTypes.AssetFile | Tracker.FormattedPrize | undefined;
   if (media.type === 'prize_generic') {
     return {
@@ -46,6 +48,7 @@ export function clone(
     id: uuid(),
     mediaUUID: mediaUUID || '-1',
     seconds: 60,
+    showOnIntermission: true,
   };
 }
 

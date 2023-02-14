@@ -10,6 +10,7 @@ export type Rotation = {
 	id: string;
 	mediaUUID: string;
 	seconds: number;
+	showOnIntermission: boolean;
 }[];
 export type MediaActive = {
 	type: TypesAll;

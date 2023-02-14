@@ -37,6 +37,20 @@
             {{ getMediaDetails(media).name || 'Could not find media name.' }}
           </div>
           <div class="d-flex">
+            <v-tooltip left>
+              <template v-slot:activator="{ on }">
+                <div v-on="on">
+                  <v-checkbox
+                    v-on="on"
+                    v-model="media.showOnIntermission"
+                    dense
+                    class="ma-0 pa-0"
+                    hide-details
+                  />
+                </div>
+              </template>
+              <span>Show On Intermission</span>
+            </v-tooltip>
             <v-text-field
               v-model="media.seconds"
               class="pa-0 ma-0"
@@ -88,7 +102,12 @@ export default class extends Vue {
     this.newRotation = clone(this.settings.rotation);
   }
 
-  isApplicable(media: MediaBox.RotationElem): boolean {
+  isApplicable(media: MediaBox.RotationElem): boolean | undefined {
+    // TODO: Check if on intermission on the dashboard size.
+    // We should probably just be loading in the server applicable rotation here.
+    if (!media.showOnIntermission) {
+      return undefined;
+    }
     // Only applicable if the asset actually exists.
     if (media.type === 'image') {
       return !!this.images.find((i) => i.sum === media.mediaUUID);

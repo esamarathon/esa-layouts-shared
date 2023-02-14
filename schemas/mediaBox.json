@@ -35,13 +35,17 @@
           },
           "seconds": {
             "type": "number"
+          },
+          "showOnIntermission": {
+            "type": "boolean"
           }
         },
         "required": [
           "type",
           "id",
           "mediaUUID",
-          "seconds"
+          "seconds",
+          "showOnIntermission"
         ]
       },
       "default": []
