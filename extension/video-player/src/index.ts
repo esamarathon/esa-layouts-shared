@@ -15,6 +15,7 @@ interface VideoPlayerEvents {
 }
 
 class VideoPlayer extends TypedEmitter<VideoPlayerEvents> {
+  private nodecg: NodeCGTypes.ServerAPI;
   private obsConfig: OBSTypes.Config;
   private obs: OBS;
   private delayAC: AbortController | undefined;
@@ -22,8 +23,9 @@ class VideoPlayer extends TypedEmitter<VideoPlayerEvents> {
   playing = false;
   index = -1;
 
-  constructor(obsConfig: OBSTypes.Config, obs: OBS) {
+  constructor(nodecg: NodeCGTypes.ServerAPI, obsConfig: OBSTypes.Config, obs: OBS) {
     super();
+    this.nodecg = nodecg;
     this.obsConfig = obsConfig;
     this.obs = obs;
 
@@ -72,16 +74,21 @@ class VideoPlayer extends TypedEmitter<VideoPlayerEvents> {
         await this.playVideo(item.video);
         // "videoEnded" event sent out from elsewhere.
       } else if (item.length && !item.commercial) waitLength = item.length;
+      this.nodecg.log.debug('[Video Player] waitLength has been set to %s', waitLength);
       if (waitLength) {
         // Wrapped function here so we can await without blocking the other stuff
         (async () => {
+          this.nodecg.log.debug('[Video Player] waitLength is %s, will start waiting', waitLength);
           // This setTimeout is wrapped so if it's cancelled, nothing breaks.
           try {
             this.delayAC = new AbortController();
             await setTimeout(waitLength * 1000, undefined, { signal: this.delayAC.signal });
             this.emit('videoEnded', item); // "Pretend" video ended in this case
-          } catch (err) { /* do nothing */ }
+          } catch (err) {
+            this.nodecg.log.warn('[Video Player] Error with waitLength waiting:', err);
+          }
           this.delayAC = undefined; // Hopefully this makes the previous AC garbage collected
+          this.nodecg.log.debug('[Video Player] waitLength waiting is finished');
         })();
       }
     } else {
