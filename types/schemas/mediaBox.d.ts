@@ -20,13 +20,21 @@ export type MediaActive = {
 	timestamp: number;
 	timeElapsed: number;
 } | null;
-export type TypesAll = 'image' | 'prize' | 'prize_generic' | 'donation' | 'subscription' | 'cheer' | 'merch';
+export type TypesAll =
+	| 'image'
+	| 'prize'
+	| 'prize_generic'
+	| 'donation'
+	| 'subscription'
+	| 'cheer'
+	| 'merch'
+	| 'therungg';
 
 export interface MediaBox {
 	rotation: Rotation;
 	rotationApplicable: Rotation;
 	alertQueue: {
-		type: 'donation' | 'subscription' | 'cheer' | 'merch';
+		type: 'donation' | 'subscription' | 'cheer' | 'merch' | 'therungg';
 		id: string;
 		data:
 			| {
@@ -47,6 +55,9 @@ export interface MediaBox {
 					user: string;
 					productName: string;
 					imgURL: string;
+			  }
+			| {
+					msg: string;
 			  };
 	}[];
 	paused: MediaActive;
