@@ -186,6 +186,8 @@ class RabbitMQ {
     this.listenTopics = opts.listenTopics;
     this.useTestData = useTestData;
 
+    this.rpc_listeners = {}
+
     if (opts.config.enabled) {
       if (!useTestData) {
         try {
@@ -271,14 +273,14 @@ class RabbitMQ {
 
   private async setupChan(chan: ConfirmChannel): Promise<void> {
     try {
-      chan.assertExchange(this.exchange, 'topic', { durable: true, autoDelete: true });
-      this.listenTopics.forEach((topic) => {
+      await chan.assertExchange(this.exchange, 'topic', { durable: true, autoDelete: true });
+      for (const topic of this.listenTopics) {
         let queueName = `${this.exchange}-${this.event}-${topic.name}`;
         if (this.config.queuePrepend) queueName = `${this.config.queuePrepend}_${queueName}`;
-        chan.assertExchange(topic.exchange, 'topic', { durable: true, autoDelete: true });
-        chan.assertQueue(queueName, { durable: true, expires: 4 * 60 * 60 * 1000 });
-        chan.bindQueue(queueName, topic.exchange, topic.key);
-        chan.consume(queueName, (msg) => {
+        await chan.assertExchange(topic.exchange, 'topic', { durable: true, autoDelete: true });
+        await chan.assertQueue(queueName, { durable: true, expires: 4 * 60 * 60 * 1000 });
+        await chan.bindQueue(queueName, topic.exchange, topic.key);
+        await chan.consume(queueName, (msg) => {
           if (msg && msg.content && this.validateMsg(msg)) {
             setTimeout(() => {
               this.evt.emit(topic.name, JSON.parse(msg.content.toString()));
@@ -294,11 +296,51 @@ class RabbitMQ {
           }
         }, { noAck: false });
       });
+      const rpc_queue = await chan.assertQueue('', { exclusive: true });
+      this.rpc_reply_queue = rpc_queue.queue;
+      await chan.consume(this.rpc_reply_queue, (msg) => {
+        this.gotRpcReply(msg);
+      }, {
+        noAck: true
+      });
       this.nodecg.log.info('[RabbitMQ] Server connection listening for messages');
     } catch (err) {
       this.nodecg.log.warn('[RabbitMQ] Some caught channel error');
       this.nodecg.log.debug('[RabbitMQ] Some caught channel error:', err);
     }
+  }
+
+  private gotRpcReply(msg: Message) {
+    const resolve = this.rpc_listeners[msg.properties.correlationId];
+    if (resolve) resolve(msg);
+  }
+
+  async rpcCall(receiver: string, data: { [k: string]: any }, timeout: number): Promise<{ [k: string]: any }> {
+    const correlationId = uuid();
+    let timer;
+
+    const replyPromise = new Promise((resolve, reject) => {
+      this.rpc_listeners[correlationId] = resolve;
+      timer = setTimeout(() => {
+          delete this.rpc_listeners[correlationId];
+          reject('RPC Timeout');
+      }, timeout);
+    });
+
+    this.chan.sendToQueue(
+      receiver,
+      Buffer.from(JSON.stringify(data)),
+      {
+        correlationId,
+        replyTo: this.rpc_reply_queue
+      }
+    );
+
+    const reply = await replyPromise;
+    clearTimeout(timer);
+    delete this.rpc_listeners[correlationId];
+
+    return JSON.parse(reply.content.toString())
   }
 
   /**
