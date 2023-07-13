@@ -1,4 +1,4 @@
-import type { NodeCG } from 'nodecg/types/server';
+import type NodeCGTypes from '@nodecg/types';
 import osc, { OscMessage } from 'osc';
 import { TypedEmitter } from 'tiny-typed-emitter';
 import { X32 as X32Types } from '../../../types';
@@ -14,7 +14,7 @@ interface X32Events {
 }
 
 class X32 extends TypedEmitter<X32Events> {
-  private nodecg: NodeCG;
+  private nodecg: NodeCGTypes.ServerAPI;
   private config: X32Types.Config;
   conn: osc.UDPPort | undefined;
   ready = false;
@@ -24,7 +24,7 @@ class X32 extends TypedEmitter<X32Events> {
   } } = {};
   private fadersInterval: { [k: string]: NodeJS.Timeout } = {};
 
-  constructor(nodecg: NodeCG, config: X32Types.Config, forwardMessages = false) {
+  constructor(nodecg: NodeCGTypes.ServerAPI, config: X32Types.Config, forwardMessages = false) {
     super();
     this.nodecg = nodecg;
     this.config = config;
