@@ -163,10 +163,7 @@ class OBS extends EventEmitter {
    * @param sourceName Name of the source.
    */
   async getSourceSettings(sourceName: string): Promise<{
-    messageId: string;
-    status: 'ok';
-    sourceName: string;
-    sourceType: string;
+    inputKind: string;
     sourceSettings: Record<string, unknown>;
   }> {
     if (!this.config.enabled || !this.connected) {
@@ -174,8 +171,13 @@ class OBS extends EventEmitter {
       throw new Error('No connection available');
     }
     try {
-      const resp = await this.conn.call('GetSourceSettings', { sourceName });
-      return resp;
+      const resp = await this.conn.call('GetInputSettings', {
+        inputName: sourceName,
+      });
+      return {
+        inputKind: resp.inputKind,
+        sourceSettings: resp.inputSettings,
+      };
     } catch (err) {
       this.nodecg.log.warn(`[OBS] Cannot get source settings [${sourceName}]`);
       this.nodecg.log.debug(`[OBS] Cannot get source settings [${sourceName}]: `
@@ -197,10 +199,10 @@ class OBS extends EventEmitter {
       throw new Error('No connection available');
     }
     try {
-      await this.conn.call('SetSourceSettings', {
-        sourceName,
-        sourceType,
-        sourceSettings,
+      await this.conn.call('SetInputSettings', {
+        inputName: sourceName,
+        inputSettings: sourceSettings as never,
+        overlay: true,
       });
     } catch (err) {
       this.nodecg.log.warn(`[OBS] Cannot set source settings [${sourceName}]`);
