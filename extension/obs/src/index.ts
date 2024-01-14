@@ -45,9 +45,8 @@ class OBS extends EventEmitter {
         }
       });
 
-      this.conn.on('ScenesChanged', async () => {
-        const scenes = await this.conn.send('GetSceneList');
-        this.sceneList = scenes.scenes.map((s) => s.name);
+      this.conn.on('SceneListChanged', async ({ scenes }) => {
+        this.sceneList = scenes.map((s) => s.name as string);
         this.emit('sceneListChanged', this.sceneList);
       });
 
@@ -56,6 +55,7 @@ class OBS extends EventEmitter {
         this.emit('streamingStatusChanged', this.streaming, !this.streaming);
       });
 
+      // @ts-expect-error TS2345 error is being fired I think
       this.conn.on('error', (err) => {
         nodecg.log.warn('[OBS] Connection error');
         nodecg.log.debug('[OBS] Connection error:', err);
@@ -145,7 +145,9 @@ class OBS extends EventEmitter {
     try {
       const scene = this.findScene(name);
       if (scene) {
-        await this.conn.call('SetCurrentScene', { 'scene-name': scene });
+        await this.conn.call('SetCurrentProgramScene', {
+          sceneName: scene,
+        });
       } else {
         throw new Error('Scene could not be found');
       }
