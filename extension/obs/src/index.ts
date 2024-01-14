@@ -1,7 +1,7 @@
 import type NodeCGTypes from '@nodecg/types';
 import clone from 'clone';
 import { EventEmitter } from 'events';
-import ObsWebsocketJs from 'obs-websocket-js';
+import OBSWebSocket from 'obs-websocket-js';
 import { findBestMatch } from 'string-similarity';
 import { OBS as OBSTypes } from '../../../types';
 
@@ -15,7 +15,7 @@ interface OBS {
 class OBS extends EventEmitter {
   private nodecg: NodeCGTypes.ServerAPI;
   private config: OBSTypes.Config;
-  conn = new ObsWebsocketJs();
+  conn = new OBSWebSocket();
   currentScene: string | undefined;
   sceneList: string [] = [];
   connected = false;
@@ -51,13 +51,8 @@ class OBS extends EventEmitter {
         this.emit('sceneListChanged', this.sceneList);
       });
 
-      this.conn.on('StreamStarted', () => {
-        this.streaming = true;
-        this.emit('streamingStatusChanged', this.streaming, !this.streaming);
-      });
-
-      this.conn.on('StreamStopped', () => {
-        this.streaming = false;
+      this.conn.on('StreamStateChanged', ({ outputActive }) => {
+        this.streaming = outputActive;
         this.emit('streamingStatusChanged', this.streaming, !this.streaming);
       });
 
@@ -153,7 +148,7 @@ class OBS extends EventEmitter {
     try {
       const scene = this.findScene(name);
       if (scene) {
-        await this.conn.send('SetCurrentScene', { 'scene-name': scene });
+        await this.conn.call('SetCurrentScene', { 'scene-name': scene });
       } else {
         throw new Error('Scene could not be found');
       }
@@ -180,7 +175,7 @@ class OBS extends EventEmitter {
       throw new Error('No connection available');
     }
     try {
-      const resp = await this.conn.send('GetSourceSettings', { sourceName });
+      const resp = await this.conn.call('GetSourceSettings', { sourceName });
       return resp;
     } catch (err) {
       this.nodecg.log.warn(`[OBS] Cannot get source settings [${sourceName}]`);
@@ -203,7 +198,7 @@ class OBS extends EventEmitter {
       throw new Error('No connection available');
     }
     try {
-      await this.conn.send('SetSourceSettings', {
+      await this.conn.call('SetSourceSettings', {
         sourceName,
         sourceType,
         sourceSettings,
@@ -248,7 +243,7 @@ class OBS extends EventEmitter {
       }
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: Typings say we need to specify more than we actually do.
-      await this.conn.send('SetSceneItemProperties', {
+      await this.conn.call('SetSceneItemProperties', {
         'scene-name': scene,
         item: { name: item },
         visible: visible ?? true,
