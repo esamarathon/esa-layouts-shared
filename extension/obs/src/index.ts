@@ -37,10 +37,10 @@ class OBS extends EventEmitter {
         setTimeout(() => this.connect(), 5000);
       });
 
-      this.conn.on('SwitchScenes', (data) => {
+      this.conn.on('CurrentProgramSceneChanged', (data) => {
         const lastScene = this.currentScene;
-        if (lastScene !== data['scene-name']) {
-          this.currentScene = data['scene-name'];
+        if (lastScene !== data.sceneName) {
+          this.currentScene = data.sceneName;
           this.emit('currentSceneChanged', this.currentScene, lastScene);
         }
       });
@@ -65,42 +65,39 @@ class OBS extends EventEmitter {
 
   async connect(): Promise<void> {
     try {
-      await this.conn.connect({
-        address: this.config.address,
-        password: this.config.password,
-      });
+      await this.conn.connect(this.config.address, this.config.password);
       this.connected = true;
-      const scenes = await this.conn.send('GetSceneList');
+      const scenes = await this.conn.call('GetSceneList');
 
       // Get current scene on connection.
       const lastScene = this.currentScene;
-      if (lastScene !== scenes['current-scene']) {
-        this.currentScene = scenes['current-scene'];
+      if (lastScene !== scenes.currentProgramSceneName) {
+        this.currentScene = scenes.currentProgramSceneName;
       }
 
       // Get scene list on connection.
       const oldList = clone(this.sceneList);
-      const newList = scenes.scenes.map((s) => s.name);
+      const newList = scenes.scenes.map((s) => s.name as string);
       if (JSON.stringify(newList) !== JSON.stringify(oldList)) {
         this.sceneList = newList;
       }
 
       // Get streaming status on connection.
-      const streamingStatus = await this.conn.send('GetStreamingStatus');
+      const streamingStatus = await this.conn.call('GetStreamStatus');
       const lastStatus = this.streaming;
-      if (streamingStatus.streaming !== lastStatus) {
-        this.streaming = streamingStatus.streaming;
+      if (streamingStatus.outputActive !== lastStatus) {
+        this.streaming = streamingStatus.outputActive;
       }
 
       // Emit changes after everything start up related has finished.
       this.emit('connectionStatusChanged', this.connected);
-      if (lastScene !== scenes['current-scene']) {
+      if (lastScene !== scenes.currentProgramSceneName) {
         this.emit('currentSceneChanged', this.currentScene, lastScene);
       }
       if (JSON.stringify(newList) !== JSON.stringify(oldList)) {
         this.emit('sceneListChanged', this.sceneList);
       }
-      if (streamingStatus.streaming !== lastStatus) {
+      if (streamingStatus.outputActive !== lastStatus) {
         this.emit('streamingStatusChanged', this.streaming, lastStatus);
       }
 
