@@ -189,11 +189,10 @@ class OBS extends EventEmitter {
   /**
    * Modify a sources settings.
    * @param sourceName Name of the source.
-   * @param sourceType Source type (has the be the internal name, not the display name).
    * @param sourceSettings Settings you wish to pass to OBS to change.
    */
   // eslint-disable-next-line max-len
-  async setSourceSettings(sourceName: string, sourceType: string, sourceSettings: Record<string, unknown>): Promise<void> {
+  async setSourceSettings(sourceName: string, sourceSettings: Record<string, unknown>): Promise<void> {
     if (!this.config.enabled || !this.connected) {
       // OBS not enabled, don't even try to set.
       throw new Error('No connection available');
@@ -202,7 +201,6 @@ class OBS extends EventEmitter {
       await this.conn.call('SetInputSettings', {
         inputName: sourceName,
         inputSettings: sourceSettings as never,
-        overlay: true,
       });
     } catch (err) {
       this.nodecg.log.warn(`[OBS] Cannot set source settings [${sourceName}]`);
@@ -210,6 +208,73 @@ class OBS extends EventEmitter {
         + `${err.error || err}`);
       throw err;
     }
+  }
+
+  /**
+   * @deprecated for removal, use getSceneItemSettings instead
+   */
+  async getItemTransform(scene: string, item: string)
+    : Promise<{ sceneItemTransform: Record<string, unknown>, visible: boolean }> {
+    const { sceneItemId } = await this.conn.call('GetSceneItemId', {
+      sceneName: scene,
+      sourceName: item,
+    });
+
+    const { sceneItemEnabled } = await this.conn.call('GetSceneItemEnabled', {
+      sceneName: scene,
+      sceneItemId,
+    });
+
+    const { sceneItemTransform } = await this.conn.call('GetSceneItemTransform', {
+      sceneName: scene,
+      sceneItemId,
+    });
+
+    return {
+      sceneItemTransform,
+      visible: sceneItemEnabled,
+    };
+  }
+
+  async getSceneItemSettings(
+    scene: string,
+    item: string,
+  ) {
+    const test = await this.conn.callBatch([
+      {
+        requestType: 'GetSceneItemId',
+        requestData: {
+          sceneName: scene,
+          sourceName: item,
+        },
+        // @ts-expect-error this is just dumb
+        outputVariables: {
+          sceneItemIdVariable: 'sceneItemId',
+        },
+      },
+      {
+        requestType: 'GetSceneItemTransform',
+        // @ts-expect-error the sceneItemId var is optional cuz of the input vars
+        requestData: {
+          sceneName: scene,
+        },
+        inputVariables: {
+          sceneItemId: 'sceneItemIdVariable',
+        },
+      },
+      {
+        requestType: 'GetSceneItemEnabled',
+        // @ts-expect-error the sceneItemId var is optional cuz of the input vars
+        requestData: {
+          sceneName: scene,
+        },
+        inputVariables: {
+          sceneItemId: 'sceneItemIdVariable',
+        },
+      },
+    ]);
+
+    console.log(test);
   }
 
   /**
@@ -242,28 +307,51 @@ class OBS extends EventEmitter {
         // OBS not enabled, don't even try to set.
         throw new Error('No connection available');
       }
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: Typings say we need to specify more than we actually do.
-      await this.conn.call('SetSceneItemProperties', {
-        'scene-name': scene,
-        item: { name: item },
-        visible: visible ?? true,
-        position: {
-          x: area?.x ?? 0,
-          y: area?.y ?? 0,
+
+      // None of the objects are properly documented btw, like wtf guys
+      const test = await this.conn.callBatch([
+        {
+          requestType: 'GetSceneItemId',
+          requestData: {
+            sceneName: scene,
+            sourceName: item,
+          },
+          // @ts-expect-error this is just dumb
+          outputVariables: {
+            sceneItemIdVariable: 'sceneItemId',
+          },
         },
-        bounds: {
-          type: 'OBS_BOUNDS_STRETCH',
-          x: area?.width ?? 1920,
-          y: area?.height ?? 1080,
+        {
+          requestType: 'SetSceneItemTransform',
+          // @ts-expect-error the sceneItemId var is optional cuz of the input vars
+          requestData: {
+            sceneName: scene,
+            sceneItemTransform: {
+              visible: visible ?? true,
+              position: {
+                x: area?.x ?? 0,
+                y: area?.y ?? 0,
+              },
+              bounds: {
+                type: 'OBS_BOUNDS_STRETCH',
+                x: area?.width ?? 1920,
+                y: area?.height ?? 1080,
+              },
+              crop: {
+                top: crop?.top ?? 0,
+                bottom: crop?.bottom ?? 0,
+                left: crop?.left ?? 0,
+                right: crop?.right ?? 0,
+              },
+            },
+          },
+          inputVariables: {
+            sceneItemId: 'sceneItemIdVariable',
+          },
         },
-        crop: {
-          top: crop?.top ?? 0,
-          bottom: crop?.bottom ?? 0,
-          left: crop?.left ?? 0,
-          right: crop?.right ?? 0,
-        },
-      });
+      ]);
+
+      console.log(test);
     } catch (err) {
       this.nodecg.log.warn(`[OBS] Cannot configure scene item [${scene}: ${item}]`);
       this.nodecg.log.debug(`[OBS] Cannot configure scene item [${scene}: ${item}]: `
