@@ -3,7 +3,28 @@ import clone from 'clone';
 import { EventEmitter } from 'events';
 import OBSWebSocket from 'obs-websocket-js';
 import { findBestMatch } from 'string-similarity';
+import { OBSResponseTypes } from 'obs-websocket-js/dist/types';
 import { OBS as OBSTypes } from '../../../types';
+
+export interface OBSTransform {
+  alignment: number;
+  boundsAlignment: number;
+  boundsHeight: number;
+  boundsType: string;
+  boundsWidth: number;
+  cropBottom: number;
+  cropLeft: number;
+  cropRight: number;
+  cropTop: number;
+  positionX: number;
+  positionY: number;
+  rotation: number;
+  scaleX: number;
+  scaleY: number;
+  sourceHeight: number;
+  sourceWidth: number;
+  width: number;
+}
 
 interface OBS {
   on(event: 'streamingStatusChanged', listener: (streaming: boolean, old?: boolean) => void): this;
@@ -214,7 +235,7 @@ class OBS extends EventEmitter {
    * @deprecated for removal, use getSceneItemSettings instead
    */
   async getItemTransform(scene: string, item: string)
-    : Promise<{ sceneItemTransform: Record<string, unknown>, visible: boolean }> {
+    : Promise<{ sceneItemTransform: OBSTransform, visible: boolean }> {
     const { sceneItemId } = await this.conn.call('GetSceneItemId', {
       sceneName: scene,
       sourceName: item,
@@ -231,7 +252,7 @@ class OBS extends EventEmitter {
     });
 
     return {
-      sceneItemTransform,
+      sceneItemTransform: sceneItemTransform as unknown as OBSTransform,
       visible: sceneItemEnabled,
     };
   }
@@ -239,8 +260,8 @@ class OBS extends EventEmitter {
   async getSceneItemSettings(
     scene: string,
     item: string,
-  ) {
-    const test = await this.conn.callBatch([
+  ): Promise<{ sceneItemTransform: OBSTransform, sceneItemEnabled: boolean }> {
+    const response = await this.conn.callBatch([
       {
         requestType: 'GetSceneItemId',
         requestData: {
@@ -274,7 +295,13 @@ class OBS extends EventEmitter {
       },
     ]);
 
-    console.log(test);
+    const transformRes = response[1].responseData as OBSResponseTypes['GetSceneItemTransform'];
+    const enabledRes = response[2].responseData as OBSResponseTypes['GetSceneItemEnabled'];
+
+    return {
+      sceneItemTransform: transformRes.sceneItemTransform as unknown as OBSTransform,
+      sceneItemEnabled: enabledRes.sceneItemEnabled,
+    };
   }
 
   /**
@@ -327,23 +354,29 @@ class OBS extends EventEmitter {
           requestData: {
             sceneName: scene,
             sceneItemTransform: {
-              visible: visible ?? true,
-              position: {
-                x: area?.x ?? 0,
-                y: area?.y ?? 0,
-              },
-              bounds: {
-                type: 'OBS_BOUNDS_STRETCH',
-                x: area?.width ?? 1920,
-                y: area?.height ?? 1080,
-              },
-              crop: {
-                top: crop?.top ?? 0,
-                bottom: crop?.bottom ?? 0,
-                left: crop?.left ?? 0,
-                right: crop?.right ?? 0,
-              },
+              boundsHeight: area?.height ?? 1080,
+              boundsType: 'OBS_BOUNDS_STRETCH',
+              boundsWidth: area?.width ?? 1920,
+
+              positionX: area?.x ?? 0,
+              positionY: area?.y ?? 0,
+
+              cropBottom: crop?.bottom ?? 0,
+              cropLeft: crop?.left ?? 0,
+              cropRight: crop?.right ?? 0,
+              cropTop: crop?.top ?? 0,
             },
+          },
+          inputVariables: {
+            sceneItemId: 'sceneItemIdVariable',
+          },
+        },
+        {
+          requestType: 'SetSceneItemEnabled',
+          // @ts-expect-error the sceneItemId var is optional cuz of the input vars
+          requestData: {
+            sceneName: scene,
+            sceneItemEnabled: visible ?? true,
           },
           inputVariables: {
             sceneItemId: 'sceneItemIdVariable',
@@ -351,7 +384,7 @@ class OBS extends EventEmitter {
         },
       ]);
 
-      console.log(test);
+      console.log(JSON.stringify(test, null, 2));
     } catch (err) {
       this.nodecg.log.warn(`[OBS] Cannot configure scene item [${scene}: ${item}]`);
       this.nodecg.log.debug(`[OBS] Cannot configure scene item [${scene}: ${item}]: `
