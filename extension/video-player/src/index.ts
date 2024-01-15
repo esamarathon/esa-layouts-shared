@@ -114,9 +114,7 @@ class VideoPlayer extends TypedEmitter<VideoPlayerEvents> {
           'TriggerMediaInputAction',
           {
             inputName: this.obsConfig.names.sources.videoPlayer,
-            // Sooo, fun fact.
-            // "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_STOP" is deprecated.
-            // This is also the only way to stop media currently.
+            // This action is incorrectly marked as deprecated in the generated docs, but isn't.
             mediaAction: 'OBS_WEBSOCKET_MEDIA_INPUT_ACTION_STOP',
           },
         );
