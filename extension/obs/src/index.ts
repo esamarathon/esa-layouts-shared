@@ -31,6 +31,7 @@ interface OBS {
   on(event: 'connectionStatusChanged', listener: (connected: boolean) => void): this;
   on(event: 'currentSceneChanged', listener: (current?: string, last?: string) => void): this;
   on(event: 'sceneListChanged', listener: (list: string[]) => void): this;
+  on(event: 'ready', listener: () => void): this;
 }
 
 class OBS extends EventEmitter {
@@ -49,7 +50,6 @@ class OBS extends EventEmitter {
 
     if (config.enabled) {
       nodecg.log.info('[OBS] Setting up connection');
-      this.connect();
 
       this.conn.on('ConnectionClosed', () => {
         this.connected = false;
@@ -67,7 +67,9 @@ class OBS extends EventEmitter {
       });
 
       this.conn.on('SceneListChanged', async ({ scenes }) => {
-        this.sceneList = scenes.map((s) => s.name as string);
+        this.sceneList = (scenes as { sceneIndex: number, sceneName: string }[])
+          .sort((s, b) => b.sceneIndex - s.sceneIndex)
+          .map((s) => s.sceneName);
         this.emit('sceneListChanged', this.sceneList);
       });
 
@@ -76,11 +78,20 @@ class OBS extends EventEmitter {
         this.emit('streamingStatusChanged', this.streaming, !this.streaming);
       });
 
-      // @ts-expect-error TS2345 error is being fired I think
-      this.conn.on('error', (err) => {
+      this.conn.on('ConnectionError', (err) => {
         nodecg.log.warn('[OBS] Connection error');
         nodecg.log.debug('[OBS] Connection error:', err);
       });
+
+      this.conn.on('Identified', () => {
+        // wait a few seconds to make sure stuff is loaded.
+        // Otherwise, we'll get "OBS is not ready to perform the request"
+        setTimeout(() => {
+          this.emit('ready');
+        }, 5 * 1000);
+      });
+
+      this.connect();
     }
   }
 
@@ -98,7 +109,9 @@ class OBS extends EventEmitter {
 
       // Get scene list on connection.
       const oldList = clone(this.sceneList);
-      const newList = scenes.scenes.map((s) => s.name as string);
+      const newList = (scenes.scenes as { sceneIndex: number, sceneName: string }[])
+        .sort((s, b) => b.sceneIndex - s.sceneIndex)
+        .map((s) => s.sceneName);
       if (JSON.stringify(newList) !== JSON.stringify(oldList)) {
         this.sceneList = newList;
       }
@@ -232,7 +245,7 @@ class OBS extends EventEmitter {
   }
 
   /**
-   * @deprecated for removal, use getSceneItemSettings instead
+   * @deprecated for removal, use getSceneItemSettings instead, it's also faster.
    */
   async getItemTransform(scene: string, item: string)
     : Promise<{ sceneItemTransform: OBSTransform, visible: boolean }> {
@@ -336,14 +349,14 @@ class OBS extends EventEmitter {
       }
 
       // None of the objects are properly documented btw, like wtf guys
-      const test = await this.conn.callBatch([
+      await this.conn.callBatch([
         {
           requestType: 'GetSceneItemId',
           requestData: {
             sceneName: scene,
             sourceName: item,
           },
-          // @ts-expect-error this is just dumb
+          // @ts-expect-error This is valid, just undocumented and not typed in obs-ws-js.
           outputVariables: {
             sceneItemIdVariable: 'sceneItemId',
           },
@@ -383,8 +396,6 @@ class OBS extends EventEmitter {
           },
         },
       ]);
-
-      console.log(JSON.stringify(test, null, 2));
     } catch (err) {
       this.nodecg.log.warn(`[OBS] Cannot configure scene item [${scene}: ${item}]`);
       this.nodecg.log.debug(`[OBS] Cannot configure scene item [${scene}: ${item}]: `

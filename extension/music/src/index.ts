@@ -169,9 +169,10 @@ class Music {
 
       // Listen to OBS transitions to play/pause correctly.
       // In v5, transitions don't tell us about the scene that is being transitioned to.
-      this.obs.conn.on('CurrentProgramSceneChanged', (data) => {
-        if (data.sceneName) {
-          if (data.sceneName.includes('[M]')) {
+      //  this is why we look at when the current scene is changed
+      this.obs.on('currentSceneChanged', (current) => {
+        if (current) {
+          if (current.includes('[M]')) {
             this.play();
           } else {
             this.pause();
