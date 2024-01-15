@@ -281,7 +281,7 @@ class OBS extends EventEmitter {
           sceneName: scene,
           sourceName: item,
         },
-        // @ts-expect-error this is just dumb
+        // @ts-expect-error This is valid, just undocumented and not typed in obs-ws-js.
         outputVariables: {
           sceneItemIdVariable: 'sceneItemId',
         },
@@ -348,7 +348,8 @@ class OBS extends EventEmitter {
         throw new Error('No connection available');
       }
 
-      // None of the objects are properly documented btw, like wtf guys
+      // None of this is properly documented btw.
+      // I had to search their discord for this information.
       await this.conn.callBatch([
         {
           requestType: 'GetSceneItemId',
