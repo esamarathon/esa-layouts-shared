@@ -2,8 +2,8 @@ import type NodeCGTypes from '@nodecg/types';
 import clone from 'clone';
 import { EventEmitter } from 'events';
 import OBSWebSocket from 'obs-websocket-js';
-import { findBestMatch } from 'string-similarity';
 import { OBSResponseTypes } from 'obs-websocket-js/dist/types';
+import { findBestMatch } from 'string-similarity';
 import { OBS as OBSTypes } from '../../../types';
 
 export interface OBSTransform {
@@ -242,32 +242,6 @@ class OBS extends EventEmitter {
         + `${err.error || err}`);
       throw err;
     }
-  }
-
-  /**
-   * @deprecated for removal, use getSceneItemSettings instead, it's also faster.
-   */
-  async getItemTransform(scene: string, item: string)
-    : Promise<{ sceneItemTransform: OBSTransform, visible: boolean }> {
-    const { sceneItemId } = await this.conn.call('GetSceneItemId', {
-      sceneName: scene,
-      sourceName: item,
-    });
-
-    const { sceneItemEnabled } = await this.conn.call('GetSceneItemEnabled', {
-      sceneName: scene,
-      sceneItemId,
-    });
-
-    const { sceneItemTransform } = await this.conn.call('GetSceneItemTransform', {
-      sceneName: scene,
-      sceneItemId,
-    });
-
-    return {
-      sceneItemTransform: sceneItemTransform as unknown as OBSTransform,
-      visible: sceneItemEnabled,
-    };
   }
 
   async getSceneItemSettings(
