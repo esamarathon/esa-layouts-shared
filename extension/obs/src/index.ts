@@ -84,7 +84,7 @@ class OBS extends EventEmitter {
       });
 
       this.conn.on('Identified', () => {
-        // wait a few seconds to make sure stuff is loaded.
+        // wait a few seconds to make sure OBS is properly loaded.
         // Otherwise, we'll get "OBS is not ready to perform the request"
         setTimeout(() => {
           this.emit('ready');
@@ -248,6 +248,8 @@ class OBS extends EventEmitter {
     scene: string,
     item: string,
   ): Promise<{ sceneItemTransform: OBSTransform, sceneItemEnabled: boolean }> {
+    // None of this is properly documented btw.
+    // I had to search their discord for this information.
     const response = await this.conn.callBatch([
       {
         requestType: 'GetSceneItemId',
