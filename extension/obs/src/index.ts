@@ -30,6 +30,7 @@ interface OBS {
   on(event: 'streamingStatusChanged', listener: (streaming: boolean, old?: boolean) => void): this;
   on(event: 'connectionStatusChanged', listener: (connected: boolean) => void): this;
   on(event: 'currentSceneChanged', listener: (current?: string, last?: string) => void): this;
+  on(event: 'transitionStarted', listener: (current: string, previous?: string) => void): this;
   on(event: 'sceneListChanged', listener: (list: string[]) => void): this;
   on(event: 'ready', listener: () => void): this;
 }
@@ -182,6 +183,7 @@ class OBS extends EventEmitter {
         await this.conn.call('SetCurrentProgramScene', {
           sceneName: scene,
         });
+        this.emit('transitionStarted', scene, this.currentScene);
       } else {
         throw new Error('Scene could not be found');
       }
