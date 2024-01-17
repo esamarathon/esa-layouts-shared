@@ -6,26 +6,6 @@ import { OBSResponseTypes } from 'obs-websocket-js/dist/types';
 import { findBestMatch } from 'string-similarity';
 import { OBS as OBSTypes } from '../../../types';
 
-export interface OBSTransform {
-  alignment: number;
-  boundsAlignment: number;
-  boundsHeight: number;
-  boundsType: string;
-  boundsWidth: number;
-  cropBottom: number;
-  cropLeft: number;
-  cropRight: number;
-  cropTop: number;
-  positionX: number;
-  positionY: number;
-  rotation: number;
-  scaleX: number;
-  scaleY: number;
-  sourceHeight: number;
-  sourceWidth: number;
-  width: number;
-}
-
 interface OBS {
   on(event: 'streamingStatusChanged', listener: (streaming: boolean, old?: boolean) => void): this;
   on(event: 'connectionStatusChanged', listener: (connected: boolean) => void): this;
@@ -68,7 +48,7 @@ class OBS extends EventEmitter {
       });
 
       this.conn.on('SceneListChanged', async ({ scenes }) => {
-        this.sceneList = (scenes as { sceneIndex: number, sceneName: string }[])
+        this.sceneList = (scenes as OBSTypes.SceneList)
           .sort((s, b) => b.sceneIndex - s.sceneIndex)
           .map((s) => s.sceneName);
         this.emit('sceneListChanged', this.sceneList);
@@ -110,7 +90,7 @@ class OBS extends EventEmitter {
 
       // Get scene list on connection.
       const oldList = clone(this.sceneList);
-      const newList = (scenes.scenes as { sceneIndex: number, sceneName: string }[])
+      const newList = (scenes.scenes as OBSTypes.SceneList)
         .sort((s, b) => b.sceneIndex - s.sceneIndex)
         .map((s) => s.sceneName);
       if (JSON.stringify(newList) !== JSON.stringify(oldList)) {
@@ -249,7 +229,7 @@ class OBS extends EventEmitter {
   async getSceneItemSettings(
     scene: string,
     item: string,
-  ): Promise<{ sceneItemTransform: OBSTransform, sceneItemEnabled: boolean }> {
+  ): Promise<{ sceneItemTransform: OBSTypes.Transform, sceneItemEnabled: boolean }> {
     // None of this is properly documented btw.
     // I had to search their discord for this information.
     const response = await this.conn.callBatch([
@@ -290,7 +270,7 @@ class OBS extends EventEmitter {
     const enabledRes = response[2].responseData as OBSResponseTypes['GetSceneItemEnabled'];
 
     return {
-      sceneItemTransform: transformRes.sceneItemTransform as unknown as OBSTransform,
+      sceneItemTransform: transformRes.sceneItemTransform as unknown as OBSTypes.Transform,
       sceneItemEnabled: enabledRes.sceneItemEnabled,
     };
   }
