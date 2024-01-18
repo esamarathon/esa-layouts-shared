@@ -7,7 +7,6 @@ interface X32Events {
   error: (error: Error) => void;
   ready: () => void;
   /**
-   * This event is only sent when "forwardMessages" is set to true in the constructor
    * @param message OSC message received from the mixer
    */
   message: (message: OscMessage) => void;
@@ -24,7 +23,7 @@ class X32 extends TypedEmitter<X32Events> {
   } } = {};
   private fadersInterval: { [k: string]: NodeJS.Timeout } = {};
 
-  constructor(nodecg: NodeCGTypes.ServerAPI, config: X32Types.Config, forwardMessages = false) {
+  constructor(nodecg: NodeCGTypes.ServerAPI, config: X32Types.Config) {
     super();
     this.nodecg = nodecg;
     this.config = config;
@@ -46,19 +45,11 @@ class X32 extends TypedEmitter<X32Events> {
         this.emit('error', err);
       });
 
-      // Because the mixer sends a lot of messages to us,
-      //  we only check if we need to forward the messages once.
-      // For performance sake we only register one message listener
-      if (forwardMessages) {
-        this.conn.on('message', (message) => {
-          this.handleFaderEvent(message);
-          this.emit('message', message);
-        });
-      } else {
-        this.conn.on('message', (message) => {
-          this.handleFaderEvent(message);
-        });
-      }
+      // For performance’s sake we only register one message listener
+      this.conn.on('message', (message) => {
+        this.handleFaderEvent(message);
+        this.emit('message', message);
+      });
 
       this.conn.on('close', () => {
         nodecg.log.info('[X32] Connection closed');
@@ -93,7 +84,7 @@ class X32 extends TypedEmitter<X32Events> {
   /**
    * Just set a specific fader to the supplied value.
    * @param name Full name of fader (example: /dca/1/fader).
-   * @param startValue Value to set (0.0 - 1.0).
+   * @param value Value to set (0.0 - 1.0).
    */
   setFader(name: string, value: number): void {
     if (!this.config.enabled || !this.conn) {
