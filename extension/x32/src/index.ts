@@ -45,7 +45,6 @@ class X32 extends TypedEmitter<X32Events> {
         this.emit('error', err);
       });
 
-      // For performance’s sake we only register one message listener
       this.conn.on('message', (message) => {
         this.handleFaderEvent(message);
         this.emit('message', message);
