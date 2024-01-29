@@ -27,7 +27,7 @@
     "get-video-duration": "3.0.2",
     "lodash": "^4.17.21",
     "node-fetch": "^2.7.0",
-    "obs-websocket-js": "^4.0.3",
+    "obs-websocket-js": "^5.0.4",
     "osc": "^2.4.4",
     "string-similarity": "^4.0.4",
     "tiny-typed-emitter": "^2.1.0",
