@@ -15,6 +15,13 @@ interface OBS {
   on(event: 'ready', listener: () => void): this;
 }
 
+type SexyTransitionData = {
+  fromScene: string;
+  toScene: string;
+  transitionName: string;
+  transitionUuid: string;
+};
+
 class OBS extends EventEmitter {
   private nodecg: NodeCGTypes.ServerAPI;
   private config: OBSTypes.Config;
@@ -64,6 +71,11 @@ class OBS extends EventEmitter {
         nodecg.log.debug('[OBS] Connection error:', err);
       });
 
+      // @ts-expect-error better types
+      this.conn.on('SceneTransitionStarted', (data: SexyTransitionData) => {
+        this.emit('transitionStarted', data.toScene, data.fromScene);
+      });
+
       this.conn.on('Identified', () => {
         // wait a few seconds to make sure OBS is properly loaded.
         // Otherwise, we'll get "OBS is not ready to perform the request"
@@ -78,7 +90,13 @@ class OBS extends EventEmitter {
 
   async connect(): Promise<void> {
     try {
-      await this.conn.connect(this.config.address, this.config.password);
+      let addr = this.config.address;
+
+      if (!addr.startsWith('ws://')) {
+        addr = `ws://${addr}`;
+      }
+
+      await this.conn.connect(addr, this.config.password);
       this.connected = true;
       const scenes = await this.conn.call('GetSceneList');
 
@@ -163,7 +181,7 @@ class OBS extends EventEmitter {
         await this.conn.call('SetCurrentProgramScene', {
           sceneName: scene,
         });
-        this.emit('transitionStarted', scene, this.currentScene);
+        // this.emit('transitionStarted', scene, this.currentScene);
       } else {
         throw new Error('Scene could not be found');
       }
