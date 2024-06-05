@@ -14,6 +14,13 @@ export namespace OBS {
     };
   }
 
+  interface SexyTransitionData {
+    fromScene: string;
+    toScene: string;
+    transitionName: string;
+    transitionUuid: string;
+  }
+
   interface Transform {
     alignment: number;
     boundsAlignment: number;

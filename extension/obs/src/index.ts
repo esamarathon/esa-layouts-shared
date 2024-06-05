@@ -15,13 +15,6 @@ interface OBS {
   on(event: 'ready', listener: () => void): this;
 }
 
-type SexyTransitionData = {
-  fromScene: string;
-  toScene: string;
-  transitionName: string;
-  transitionUuid: string;
-};
-
 class OBS extends EventEmitter {
   private nodecg: NodeCGTypes.ServerAPI;
   private config: OBSTypes.Config;
@@ -72,7 +65,7 @@ class OBS extends EventEmitter {
       });
 
       // @ts-expect-error better types are needed.
-      this.conn.on('SceneTransitionStarted', (data: SexyTransitionData) => {
+      this.conn.on('SceneTransitionStarted', (data: OBSTypes.SexyTransitionData) => {
         this.emit('transitionStarted', data.toScene, data.fromScene);
       });
 
