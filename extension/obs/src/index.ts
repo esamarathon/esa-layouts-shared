@@ -71,7 +71,7 @@ class OBS extends EventEmitter {
         nodecg.log.debug('[OBS] Connection error:', err);
       });
 
-      // @ts-expect-error better types
+      // @ts-expect-error better types are needed.
       this.conn.on('SceneTransitionStarted', (data: SexyTransitionData) => {
         this.emit('transitionStarted', data.toScene, data.fromScene);
       });
@@ -181,7 +181,6 @@ class OBS extends EventEmitter {
         await this.conn.call('SetCurrentProgramScene', {
           sceneName: scene,
         });
-        // this.emit('transitionStarted', scene, this.currentScene);
       } else {
         throw new Error('Scene could not be found');
       }
