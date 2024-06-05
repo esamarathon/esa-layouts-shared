@@ -1,7 +1,8 @@
 import type NodeCGTypes from '@nodecg/types';
 import clone from 'clone';
 import { EventEmitter } from 'events';
-import ObsWebsocketJs from 'obs-websocket-js';
+import OBSWebSocket from 'obs-websocket-js';
+import { OBSResponseTypes } from 'obs-websocket-js/dist/types';
 import { findBestMatch } from 'string-similarity';
 import { OBS as OBSTypes } from '../../../types';
 
@@ -9,13 +10,15 @@ interface OBS {
   on(event: 'streamingStatusChanged', listener: (streaming: boolean, old?: boolean) => void): this;
   on(event: 'connectionStatusChanged', listener: (connected: boolean) => void): this;
   on(event: 'currentSceneChanged', listener: (current?: string, last?: string) => void): this;
+  on(event: 'transitionStarted', listener: (current: string, previous?: string) => void): this;
   on(event: 'sceneListChanged', listener: (list: string[]) => void): this;
+  on(event: 'ready', listener: () => void): this;
 }
 
 class OBS extends EventEmitter {
   private nodecg: NodeCGTypes.ServerAPI;
   private config: OBSTypes.Config;
-  conn = new ObsWebsocketJs();
+  conn = new OBSWebSocket();
   currentScene: string | undefined;
   sceneList: string [] = [];
   connected = false;
@@ -28,7 +31,6 @@ class OBS extends EventEmitter {
 
     if (config.enabled) {
       nodecg.log.info('[OBS] Setting up connection');
-      this.connect();
 
       this.conn.on('ConnectionClosed', () => {
         this.connected = false;
@@ -37,75 +39,91 @@ class OBS extends EventEmitter {
         setTimeout(() => this.connect(), 5000);
       });
 
-      this.conn.on('SwitchScenes', (data) => {
+      this.conn.on('CurrentProgramSceneChanged', (data) => {
         const lastScene = this.currentScene;
-        if (lastScene !== data['scene-name']) {
-          this.currentScene = data['scene-name'];
+        if (lastScene !== data.sceneName) {
+          this.currentScene = data.sceneName;
           this.emit('currentSceneChanged', this.currentScene, lastScene);
         }
       });
 
-      this.conn.on('ScenesChanged', async () => {
-        const scenes = await this.conn.send('GetSceneList');
-        this.sceneList = scenes.scenes.map((s) => s.name);
+      this.conn.on('SceneListChanged', async ({ scenes }) => {
+        this.sceneList = (scenes as OBSTypes.SceneList)
+          .sort((s, b) => b.sceneIndex - s.sceneIndex)
+          .map((s) => s.sceneName);
         this.emit('sceneListChanged', this.sceneList);
       });
 
-      this.conn.on('StreamStarted', () => {
-        this.streaming = true;
+      this.conn.on('StreamStateChanged', ({ outputActive }) => {
+        this.streaming = outputActive;
         this.emit('streamingStatusChanged', this.streaming, !this.streaming);
       });
 
-      this.conn.on('StreamStopped', () => {
-        this.streaming = false;
-        this.emit('streamingStatusChanged', this.streaming, !this.streaming);
-      });
-
-      this.conn.on('error', (err) => {
+      this.conn.on('ConnectionError', (err) => {
         nodecg.log.warn('[OBS] Connection error');
         nodecg.log.debug('[OBS] Connection error:', err);
       });
+
+      // @ts-expect-error better types are needed.
+      this.conn.on('SceneTransitionStarted', (data: OBSTypes.SexyTransitionData) => {
+        this.emit('transitionStarted', data.toScene, data.fromScene);
+      });
+
+      this.conn.on('Identified', () => {
+        // wait a few seconds to make sure OBS is properly loaded.
+        // Otherwise, we'll get "OBS is not ready to perform the request"
+        setTimeout(() => {
+          this.emit('ready');
+        }, 5 * 1000);
+      });
+
+      this.connect();
     }
   }
 
   async connect(): Promise<void> {
     try {
-      await this.conn.connect({
-        address: this.config.address,
-        password: this.config.password,
-      });
+      let addr = this.config.address;
+
+      if (!addr.startsWith('ws://')) {
+        addr = `ws://${addr}`;
+      }
+
+      await this.conn.connect(addr, this.config.password);
       this.connected = true;
-      const scenes = await this.conn.send('GetSceneList');
+      const scenes = await this.conn.call('GetSceneList');
 
       // Get current scene on connection.
       const lastScene = this.currentScene;
-      if (lastScene !== scenes['current-scene']) {
-        this.currentScene = scenes['current-scene'];
+      if (lastScene !== scenes.currentProgramSceneName) {
+        this.currentScene = scenes.currentProgramSceneName;
       }
 
       // Get scene list on connection.
       const oldList = clone(this.sceneList);
-      const newList = scenes.scenes.map((s) => s.name);
+      const newList = (scenes.scenes as OBSTypes.SceneList)
+        .sort((s, b) => b.sceneIndex - s.sceneIndex)
+        .map((s) => s.sceneName);
       if (JSON.stringify(newList) !== JSON.stringify(oldList)) {
         this.sceneList = newList;
       }
 
       // Get streaming status on connection.
-      const streamingStatus = await this.conn.send('GetStreamingStatus');
+      const streamingStatus = await this.conn.call('GetStreamStatus');
       const lastStatus = this.streaming;
-      if (streamingStatus.streaming !== lastStatus) {
-        this.streaming = streamingStatus.streaming;
+      if (streamingStatus.outputActive !== lastStatus) {
+        this.streaming = streamingStatus.outputActive;
       }
 
       // Emit changes after everything start up related has finished.
       this.emit('connectionStatusChanged', this.connected);
-      if (lastScene !== scenes['current-scene']) {
+      if (lastScene !== scenes.currentProgramSceneName) {
         this.emit('currentSceneChanged', this.currentScene, lastScene);
       }
       if (JSON.stringify(newList) !== JSON.stringify(oldList)) {
         this.emit('sceneListChanged', this.sceneList);
       }
-      if (streamingStatus.streaming !== lastStatus) {
+      if (streamingStatus.outputActive !== lastStatus) {
         this.emit('streamingStatusChanged', this.streaming, lastStatus);
       }
 
@@ -153,7 +171,9 @@ class OBS extends EventEmitter {
     try {
       const scene = this.findScene(name);
       if (scene) {
-        await this.conn.send('SetCurrentScene', { 'scene-name': scene });
+        await this.conn.call('SetCurrentProgramScene', {
+          sceneName: scene,
+        });
       } else {
         throw new Error('Scene could not be found');
       }
@@ -169,10 +189,7 @@ class OBS extends EventEmitter {
    * @param sourceName Name of the source.
    */
   async getSourceSettings(sourceName: string): Promise<{
-    messageId: string;
-    status: 'ok';
-    sourceName: string;
-    sourceType: string;
+    inputKind: string;
     sourceSettings: Record<string, unknown>;
   }> {
     if (!this.config.enabled || !this.connected) {
@@ -180,8 +197,13 @@ class OBS extends EventEmitter {
       throw new Error('No connection available');
     }
     try {
-      const resp = await this.conn.send('GetSourceSettings', { sourceName });
-      return resp;
+      const resp = await this.conn.call('GetInputSettings', {
+        inputName: sourceName,
+      });
+      return {
+        inputKind: resp.inputKind,
+        sourceSettings: resp.inputSettings,
+      };
     } catch (err) {
       this.nodecg.log.warn(`[OBS] Cannot get source settings [${sourceName}]`);
       this.nodecg.log.debug(`[OBS] Cannot get source settings [${sourceName}]: `
@@ -193,20 +215,18 @@ class OBS extends EventEmitter {
   /**
    * Modify a sources settings.
    * @param sourceName Name of the source.
-   * @param sourceType Source type (has the be the internal name, not the display name).
    * @param sourceSettings Settings you wish to pass to OBS to change.
    */
   // eslint-disable-next-line max-len
-  async setSourceSettings(sourceName: string, sourceType: string, sourceSettings: Record<string, unknown>): Promise<void> {
+  async setSourceSettings(sourceName: string, sourceSettings: Record<string, unknown>): Promise<void> {
     if (!this.config.enabled || !this.connected) {
       // OBS not enabled, don't even try to set.
       throw new Error('No connection available');
     }
     try {
-      await this.conn.send('SetSourceSettings', {
-        sourceName,
-        sourceType,
-        sourceSettings,
+      await this.conn.call('SetInputSettings', {
+        inputName: sourceName,
+        inputSettings: sourceSettings as never,
       });
     } catch (err) {
       this.nodecg.log.warn(`[OBS] Cannot set source settings [${sourceName}]`);
@@ -214,6 +234,55 @@ class OBS extends EventEmitter {
         + `${err.error || err}`);
       throw err;
     }
+  }
+
+  async getSceneItemSettings(
+    scene: string,
+    item: string,
+  ): Promise<{ sceneItemTransform: OBSTypes.Transform, sceneItemEnabled: boolean }> {
+    // None of this is properly documented btw.
+    // I had to search their discord for this information.
+    const response = await this.conn.callBatch([
+      {
+        requestType: 'GetSceneItemId',
+        requestData: {
+          sceneName: scene,
+          sourceName: item,
+        },
+        // @ts-expect-error This is valid, just undocumented and not typed in obs-ws-js.
+        outputVariables: {
+          sceneItemIdVariable: 'sceneItemId',
+        },
+      },
+      {
+        requestType: 'GetSceneItemTransform',
+        // @ts-expect-error the sceneItemId var is optional cuz of the input vars
+        requestData: {
+          sceneName: scene,
+        },
+        inputVariables: {
+          sceneItemId: 'sceneItemIdVariable',
+        },
+      },
+      {
+        requestType: 'GetSceneItemEnabled',
+        // @ts-expect-error the sceneItemId var is optional cuz of the input vars
+        requestData: {
+          sceneName: scene,
+        },
+        inputVariables: {
+          sceneItemId: 'sceneItemIdVariable',
+        },
+      },
+    ]);
+
+    const transformRes = response[1].responseData as OBSResponseTypes['GetSceneItemTransform'];
+    const enabledRes = response[2].responseData as OBSResponseTypes['GetSceneItemEnabled'];
+
+    return {
+      sceneItemTransform: transformRes.sceneItemTransform as unknown as OBSTypes.Transform,
+      sceneItemEnabled: enabledRes.sceneItemEnabled,
+    };
   }
 
   /**
@@ -246,28 +315,56 @@ class OBS extends EventEmitter {
         // OBS not enabled, don't even try to set.
         throw new Error('No connection available');
       }
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: Typings say we need to specify more than we actually do.
-      await this.conn.send('SetSceneItemProperties', {
-        'scene-name': scene,
-        item: { name: item },
-        visible: visible ?? true,
-        position: {
-          x: area?.x ?? 0,
-          y: area?.y ?? 0,
+
+      // None of this is properly documented btw.
+      // I had to search their discord for this information.
+      await this.conn.callBatch([
+        {
+          requestType: 'GetSceneItemId',
+          requestData: {
+            sceneName: scene,
+            sourceName: item,
+          },
+          // @ts-expect-error This is valid, just undocumented and not typed in obs-ws-js.
+          outputVariables: {
+            sceneItemIdVariable: 'sceneItemId',
+          },
         },
-        bounds: {
-          type: 'OBS_BOUNDS_STRETCH',
-          x: area?.width ?? 1920,
-          y: area?.height ?? 1080,
+        {
+          requestType: 'SetSceneItemTransform',
+          // @ts-expect-error the sceneItemId var is optional cuz of the input vars
+          requestData: {
+            sceneName: scene,
+            sceneItemTransform: {
+              boundsHeight: area?.height ?? 1080,
+              boundsType: 'OBS_BOUNDS_STRETCH',
+              boundsWidth: area?.width ?? 1920,
+
+              positionX: area?.x ?? 0,
+              positionY: area?.y ?? 0,
+
+              cropBottom: crop?.bottom ?? 0,
+              cropLeft: crop?.left ?? 0,
+              cropRight: crop?.right ?? 0,
+              cropTop: crop?.top ?? 0,
+            },
+          },
+          inputVariables: {
+            sceneItemId: 'sceneItemIdVariable',
+          },
         },
-        crop: {
-          top: crop?.top ?? 0,
-          bottom: crop?.bottom ?? 0,
-          left: crop?.left ?? 0,
-          right: crop?.right ?? 0,
+        {
+          requestType: 'SetSceneItemEnabled',
+          // @ts-expect-error the sceneItemId var is optional cuz of the input vars
+          requestData: {
+            sceneName: scene,
+            sceneItemEnabled: visible ?? true,
+          },
+          inputVariables: {
+            sceneItemId: 'sceneItemIdVariable',
+          },
         },
-      });
+      ]);
     } catch (err) {
       this.nodecg.log.warn(`[OBS] Cannot configure scene item [${scene}: ${item}]`);
       this.nodecg.log.debug(`[OBS] Cannot configure scene item [${scene}: ${item}]: `
